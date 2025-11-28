@@ -29,7 +29,6 @@ function UserMenu({ authUser, openSidebar }) {
   );
 }
 
-
 function Sidebar({ open, setOpen }) {
   return (
     <>
@@ -47,12 +46,8 @@ function Sidebar({ open, setOpen }) {
           open ? "translate-x-0" : "translate-x-full"
         }`}
       >
-        <div className="p-4 text-lg font-semibold border-b">
-          Your List
-        </div>
-
+        <div className="p-4 text-lg font-semibold border-b">Your List</div>
         <div className="p-4 text-gray-600">
-          {/* Placeholder for now */}
           <p>No items yet...</p>
         </div>
       </div>
@@ -90,27 +85,57 @@ export default function Landing() {
             </Link>
           )}
 
-          {authUser && (
-            <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
-            )}
+          {authUser && <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />}
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <main className="flex-grow flex flex-col justify-center items-center text-center px-6 py-16">
-        <h1 className="text-4xl font-bold mb-4">
-          Welcome to Studio Ghibli Explorer
-        </h1>
-        <p className="text-lg max-w-xl mb-6">
-          Explore the world of Studio Ghibli.
-        </p>
-        <Link
-          href="/login"
-          className="bg-gray-200 text-gray-900 px-6 py-3 rounded-md font-bold hover:bg-gray-300 transition"
-        >
-          Get Started
-        </Link>
-      </main>
+      {/* HERO SECTION */}
+      <section className="h-screen flex flex-col justify-start items-center text-center px-6 relative overflow-hidden">
+        <div className="flex flex-col items-center z-10 mt-28">
+          <h1 className="text-5xl font-bold mb-4 text-center">
+            Welcome to Studio Ghibli Explorer
+          </h1>
+          <p className="text-lg max-w-xl mb-6 text-center">
+            Explore the world of Studio Ghibli. Lorem ipsum, dolor sit amet
+            consectetur adipisicing elit.
+          </p>
+          <Link
+            href="/login"
+            className="bg-gray-200 text-gray-900 px-6 py-3 rounded-md font-bold hover:bg-gray-300 transition"
+          >
+            Get Started
+          </Link>
+        </div>
+
+        {/* 3D Rotating Cards */}
+        <div className="wrapper z-0 absolute bottom-0 mb-12">
+          <div className="inner" style={{ "--quantity": 10 }}>
+            {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+              <div
+                key={i}
+                className="card"
+                style={{
+                  "--index": i,
+                  "--color-card": [
+                    "142, 249, 252",
+                    "142, 252, 204",
+                    "142, 252, 157",
+                    "215, 252, 142",
+                    "252, 252, 142",
+                    "252, 208, 142",
+                    "252, 142, 142",
+                    "252, 142, 239",
+                    "204, 142, 252",
+                    "142, 202, 252",
+                  ][i],
+                }}
+              >
+                <div className="img"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* About Section */}
       <section id="about" className="p-12 text-center">
