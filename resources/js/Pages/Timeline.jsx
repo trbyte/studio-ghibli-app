@@ -1,3 +1,4 @@
+
 import React, { useState, useRef, useEffect } from "react";
 
 export default function Timeline() {
@@ -25,32 +26,22 @@ export default function Timeline() {
 }
 
 /* ================================================================== */
-/*                             TIMELINE ITEM                           */
+/*                            TIMELINE ITEM                           */
 /* ================================================================== */
 
 function TimelineItem({ item, isLeft, reverse }) {
   const [showDetails, setShowDetails] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-
-  const detailsRef = useRef(null);
   const menuRef = useRef(null);
 
-  // CLOSE WHEN CLICKING OUTSIDE
   useEffect(() => {
-    function handleOutside(e) {
-      if (
-        detailsRef.current &&
-        !detailsRef.current.contains(e.target) &&
-        menuRef.current &&
-        !menuRef.current.contains(e.target)
-      ) {
-        setShowDetails(false);
+    function handleClickOutside(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
         setMenuOpen(false);
       }
     }
-
-    document.addEventListener("mousedown", handleOutside);
-    return () => document.removeEventListener("mousedown", handleOutside);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const actions = [
@@ -61,31 +52,28 @@ function TimelineItem({ item, isLeft, reverse }) {
     { key: "finished", label: "Finished", icon: "check_circle" },
   ];
 
-  /* ================================
-     POSITION CLASSES FOR LEFT/RIGHT
-     ================================ */
+  /* ------------------------------------------
+     BUTTON ROW ALIGNMENT (MIRRORING)
+  ------------------------------------------- */
+  const buttonRowClass = isLeft
+    ? "flex items-center mt-3 space-x-4 relative"
+    : "flex items-center mt-3 space-x-4 relative justify-end";
 
-  const rowClass = isLeft
-    ? "flex items-center space-x-4 mt-3 relative"
-    : "flex items-center space-x-4 mt-3 relative justify-end";
+  /* Details popup alignment */
+  const detailsPopupPosition = isLeft ? "-left-4" : "right-0";
 
-  const dropdownAlign = isLeft
-    ? "left-[90px]"
-    : "right-[90px] flex flex-col items-end";
-
-  const detailsPopupAlign = isLeft ? "left-0" : "right-0";
-
-  const actionRowReverse = isLeft
-    ? "flex-row space-x-2"
-    : "flex-row-reverse space-x-reverse";
+  /* Dropdown menu alignment */
+  const menuPosition = isLeft
+    ? "left-[85px]"
+    : "right-[100px] flex flex-col items-end";
 
   return (
     <div className={`relative w-1/2 py-6 ${isLeft ? "pr-8" : "pl-8 ml-auto"}`}>
-
-      {/* TIMELINE DOT */}
+      
+      {/* Dot marker */}
       <div className="absolute top-6 left-1/2 w-3 h-3 bg-gray-400 rounded-full -translate-x-1/2"></div>
 
-      {/* PANEL */}
+      {/* Panel box */}
       <div className="p-4 border rounded-md bg-white">
         {reverse ? (
           <div className="flex justify-between">
@@ -100,140 +88,106 @@ function TimelineItem({ item, isLeft, reverse }) {
         )}
 
         <hr className="border-t border-gray-400 border-dotted my-2" />
+
         <p className="text-sm text-gray-700">{item.desc}</p>
       </div>
 
       {/* BUTTON ROW */}
-      <div className={rowClass}>
+      <div className={buttonRowClass} ref={menuRef}>
         
-        {/* ===================== LEFT SIDE ===================== */}
+        {/* ============= LEFT SIDE BUTTON ORDER ============= */}
         {isLeft && (
           <>
-            {/* DETAILS BUTTON + POPUP */}
-            <div className="relative" ref={detailsRef}>
-              <button
-                onMouseEnter={() => setShowDetails(true)}
-                onMouseLeave={() => setShowDetails(false)}
-                className="px-5 py-2 bg-black text-white rounded-xl text-sm shadow hover:bg-gray-800 transition"
-              >
-                Details
-              </button>
+            {/* Details button */}
+            <button
+              onMouseEnter={() => setShowDetails(true)}
+              onMouseLeave={() => setShowDetails(false)}
+              className="px-5 py-2 bg-black text-white rounded-xl text-sm font-medium shadow hover:bg-gray-800 transition"
+            >
+              Details
+            </button>
 
-              {showDetails && (
-                <div
-                  className={`absolute ${detailsPopupAlign} top-12 w-64 bg-white border rounded-md shadow-lg p-4 text-sm`}
-                >
-                  <p><strong>Japanese Title:</strong> ______</p>
-                  <p><strong>Director:</strong> ______</p>
-                  <p><strong>Producer:</strong> ______</p>
-                  <p><strong>Running Time:</strong> ______</p>
-                  <p><strong>Rating:</strong> ______</p>
-                </div>
-              )}
-            </div>
-
-            {/* PLUS BUTTON */}
-            <div className="relative" ref={menuRef}>
-              <button
-                onClick={() => setMenuOpen((prev) => !prev)}
-                className="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center shadow"
-              >
-                <span className="material-symbols-outlined text-2xl">add</span>
-              </button>
-
-              {menuOpen && (
-                <div
-                  className={`absolute ${dropdownAlign} top-12 space-y-2 z-50`}
-                >
-                  {actions.map((action) => (
-                    <div
-                      key={action.key}
-                      className={`flex items-center ${actionRowReverse}`}
-                    >
-                      <button
-                        onClick={() => setMenuOpen(false)}
-                        className="w-9 h-9 bg-white border rounded-full flex items-center justify-center shadow hover:bg-gray-100"
-                      >
-                        <span className="material-symbols-outlined text-base">
-                          {action.icon}
-                        </span>
-                      </button>
-
-                      <div className="px-4 py-2 bg-white rounded-full border shadow text-sm">
-                        {action.label}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+            {/* PLUS button */}
+            <button
+              onClick={() => setMenuOpen((prev) => !prev)}
+              className="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center shadow"
+            >
+              <span className="material-symbols-outlined text-2xl">add</span>
+            </button>
           </>
         )}
 
-        {/* ===================== RIGHT SIDE ===================== */}
+        {/* ============= RIGHT SIDE BUTTON ORDER ============= */}
         {!isLeft && (
           <>
-            {/* PLUS BUTTON */}
-            <div className="relative" ref={menuRef}>
-              <button
-                onClick={() => setMenuOpen((prev) => !prev)}
-                className="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center shadow"
-              >
-                <span className="material-symbols-outlined text-2xl">add</span>
-              </button>
+            {/* PLUS button */}
+            <button
+              onClick={() => setMenuOpen((prev) => !prev)}
+              className="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center shadow"
+            >
+              <span className="material-symbols-outlined text-2xl">add</span>
+            </button>
 
-              {menuOpen && (
-                <div
-                  className={`absolute ${dropdownAlign} top-12 space-y-2 z-50`}
-                >
-                  {actions.map((action) => (
-                    <div
-                      key={action.key}
-                      className={`flex items-center ${actionRowReverse}`}
-                    >
-                      <button
-                        onClick={() => setMenuOpen(false)}
-                        className="w-9 h-9 bg-white border rounded-full flex items-center justify-center shadow hover:bg-gray-100"
-                      >
-                        <span className="material-symbols-outlined text-base">
-                          {action.icon}
-                        </span>
-                      </button>
-
-                      <div className="px-4 py-2 bg-white rounded-full border shadow text-sm">
-                        {action.label}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* DETAILS BUTTON + POPUP */}
-            <div className="relative" ref={detailsRef}>
-              <button
-                onMouseEnter={() => setShowDetails(true)}
-                onMouseLeave={() => setShowDetails(false)}
-                className="px-5 py-2 bg-black text-white rounded-xl text-sm shadow hover:bg-gray-800 transition"
-              >
-                Details
-              </button>
-
-              {showDetails && (
-                <div
-                  className={`absolute ${detailsPopupAlign} top-12 w-64 bg-white border rounded-md shadow-lg p-4 text-sm`}
-                >
-                  <p><strong>Japanese Title:</strong> ______</p>
-                  <p><strong>Director:</strong> ______</p>
-                  <p><strong>Producer:</strong> ______</p>
-                  <p><strong>Running Time:</strong> ______</p>
-                  <p><strong>Rating:</strong> ______</p>
-                </div>
-              )}
-            </div>
+            {/* Details button */}
+            <button
+              onMouseEnter={() => setShowDetails(true)}
+              onMouseLeave={() => setShowDetails(false)}
+              className="px-5 py-2 bg-black text-white rounded-xl text-sm font-medium shadow hover:bg-gray-800 transition"
+            >
+              Details
+            </button>
           </>
+        )}
+
+        {/* DETAILS POPUP */}
+        {showDetails && (
+          <div
+            className={`absolute ${detailsPopupPosition} top-12 w-64 bg-white border rounded-md shadow-lg p-4 text-sm z-50`}
+          >
+            <p><strong>Japanese Title:</strong> ______</p>
+            <p><strong>Director:</strong> ______</p>
+            <p><strong>Producer:</strong> ______</p>
+            <p><strong>Running Time:</strong> ______</p>
+            <p><strong>Rating:</strong> ______</p>
+          </div>
+        )}
+
+        {/* DROPDOWN MENU */}
+        {menuOpen && (
+          <div className={`absolute ${menuPosition} top-12 space-y-2 z-50`}>
+
+            {actions.map((action) => (
+              <div
+                key={action.key}
+                className={`flex items-center space-x-2 ${
+                  isLeft ? "" : "flex-row-reverse space-x-reverse"
+                }`}
+              >
+                {/* ICON BUTTON */}
+                <button
+                  onClick={() => {
+                    console.log("Selected:", action.key);
+                    setMenuOpen(false);
+                  }}
+                  className="w-9 h-9 bg-white border rounded-full flex items-center justify-center shadow hover:bg-gray-100 transition"
+                >
+                  <span className="material-symbols-outlined text-base">
+                    {action.icon}
+                  </span>
+                </button>
+
+                {/* LABEL */}
+                <div className="px-4 py-2 bg-white rounded-full border shadow text-sm">
+                  {action.label}
+                </div>
+              </div>
+            ))}
+
+          </div>
         )}
       </div>
     </div>
   );
 }
+
+
