@@ -1,11 +1,11 @@
 import React from "react";
 import { Link, usePage } from "@inertiajs/react";
+import Timeline from "./Timeline";
 
 function UserMenu({ authUser }) {
   const [open, setOpen] = React.useState(false);
   const menuRef = React.useRef(null);
 
-  // Close dropdown when clicking outside
   React.useEffect(() => {
     function handleClickOutside(e) {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -14,12 +14,12 @@ function UserMenu({ authUser }) {
     }
 
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    return () =>
+      document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   return (
     <div ref={menuRef} className="relative inline-block text-left">
-      {/* Profile Icon */}
       <button
         onClick={() => setOpen(!open)}
         className="p-2 rounded-full transition hover:text-gray-300"
@@ -29,7 +29,6 @@ function UserMenu({ authUser }) {
         </span>
       </button>
 
-      {/* Dropdown */}
       {open && (
         <div className="absolute right-0 mt-2 w-40 bg-white shadow-md rounded-md border z-50">
           <div className="px-4 py-2 font-semibold border-b">
@@ -53,7 +52,6 @@ function UserMenu({ authUser }) {
 function Sidebar({ open, setOpen }) {
   return (
     <>
-      {/* Overlay */}
       {open && (
         <div
           className="fixed inset-0 bg-black/40 backdrop-blur-sm z-[55]"
@@ -61,15 +59,12 @@ function Sidebar({ open, setOpen }) {
         ></div>
       )}
 
-      {/* Sidebar panel */}
       <div
         className={`fixed top-0 right-0 h-screen w-64 
-                    bg-white/90 backdrop-blur-lg
-                    shadow-xl border-l z-[60]
-                    overflow-y-auto
-                    transform transition-transform duration-300 ${
-                      open ? "translate-x-0" : "translate-x-full"
-                    }`}
+          bg-white/90 backdrop-blur-lg shadow-xl border-l z-[60]
+          overflow-y-auto transform transition-transform duration-300 ${
+            open ? "translate-x-0" : "translate-x-full"
+          }`}
       >
         <div className="p-4 text-lg font-semibold border-b">Your List</div>
         <div className="p-4 text-gray-600">
@@ -89,19 +84,11 @@ export default function Landing() {
     <>
       {/* NAVBAR */}
       <nav
-        className="
-          fixed top-0 left-0 w-full
-          flex justify-between items-center
-          px-6 py-3
-          bg-transparent
-          backdrop-blur-sm
-          z-50
-        "
+        className="fixed top-0 left-0 w-full flex justify-between items-center px-6 py-3 bg-transparent backdrop-blur-sm z-50"
       >
         <div className="text-xl font-bold">Studio Ghibli</div>
 
         <div className="flex items-center space-x-3">
-          {/* Book Icon → Opens Sidebar */}
           {authUser && (
             <button
               onClick={() => setSidebarOpen(true)}
@@ -111,7 +98,6 @@ export default function Landing() {
             </button>
           )}
 
-          {/* User Menu */}
           {authUser ? (
             <UserMenu authUser={authUser} />
           ) : (
@@ -125,7 +111,6 @@ export default function Landing() {
         </div>
       </nav>
 
-      {/* SIDEBAR — OUTSIDE NAVBAR */}
       {authUser && (
         <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
       )}
@@ -140,8 +125,7 @@ export default function Landing() {
               Welcome to Studio Ghibli Explorer
             </h1>
             <p className="text-lg max-w-xl mb-6 text-center">
-              Explore the world of Studio Ghibli. Lorem ipsum, dolor sit amet
-              consectetur adipisicing elit.
+              Explore the world of Studio Ghibli. Lorem ipsum dolor sit amet.
             </p>
             <Link
               href="/login"
@@ -151,7 +135,6 @@ export default function Landing() {
             </Link>
           </div>
 
-          {/* 3D Rotating Cards */}
           <div className="wrapper z-0 absolute bottom-0 mb-12">
             <div className="inner" style={{ "--quantity": 10 }}>
               {[...Array(10).keys()].map((i) => (
@@ -161,16 +144,16 @@ export default function Landing() {
                   style={{
                     "--index": i,
                     "--color-card": [
-                      "142, 249, 252",
-                      "142, 252, 204",
-                      "142, 252, 157",
-                      "215, 252, 142",
-                      "252, 252, 142",
-                      "252, 208, 142",
-                      "252, 142, 142",
-                      "252, 142, 239",
-                      "204, 142, 252",
-                      "142, 202, 252",
+                      "142,249,252",
+                      "142,252,204",
+                      "142,252,157",
+                      "215,252,142",
+                      "252,252,142",
+                      "252,208,142",
+                      "252,142,142",
+                      "252,142,239",
+                      "204,142,252",
+                      "142,202,252",
                     ][i],
                   }}
                 >
@@ -189,6 +172,8 @@ export default function Landing() {
           </p>
         </section>
 
+        <Timeline />
+
         {/* Contact Section */}
         <section id="contact" className="p-12 text-center">
           <h2 className="text-2xl font-bold mb-4">Contact</h2>
@@ -200,7 +185,6 @@ export default function Landing() {
           </p>
         </section>
 
-        {/* Footer */}
         <footer className="p-6 text-center border-t border-gray-300">
           &copy; {new Date().getFullYear()} Studio Ghibli App
         </footer>
