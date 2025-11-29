@@ -49,7 +49,15 @@ function UserMenu({ authUser }) {
   );
 }
 
-function Sidebar({ open, setOpen }) {
+function Sidebar({ open, setOpen, userList }) {
+  const sections = [
+    { key: "favorite", label: "Favorites", icon: "star" },
+    { key: "plan", label: "Plan to Watch", icon: "bookmark" },
+    { key: "on_hold", label: "On-Hold", icon: "pause_circle" },
+    { key: "dropped", label: "Dropped", icon: "cancel" },
+    { key: "finished", label: "Finished", icon: "check_circle" },
+  ];
+
   return (
     <>
       {open && (
@@ -60,15 +68,33 @@ function Sidebar({ open, setOpen }) {
       )}
 
       <div
-        className={`fixed top-0 right-0 h-screen w-64 
-          bg-white/90 backdrop-blur-lg shadow-xl border-l z-[60]
-          overflow-y-auto transform transition-transform duration-300 ${
-            open ? "translate-x-0" : "translate-x-full"
-          }`}
+        className={`fixed top-0 right-0 h-screen w-64 bg-white/90 backdrop-blur-lg
+          shadow-xl border-l z-[60] overflow-y-auto transform
+          transition-transform duration-300 ${open ? "translate-x-0" : "translate-x-full"}`}
       >
         <div className="p-4 text-lg font-semibold border-b">Your List</div>
-        <div className="p-4 text-gray-600">
-          <p>No items yet...</p>
+
+        <div className="p-4 space-y-6">
+          {sections.map((sec) => (
+            <div key={sec.key}>
+              <div className="flex items-center font-semibold text-gray-700 mb-2">
+                <span className="material-symbols-outlined mr-1">{sec.icon}</span>
+                {sec.label} ({userList[sec.key]?.length || 0})
+              </div>
+
+              {userList[sec.key]?.length > 0 ? (
+                <ul className="ml-2 space-y-1 text-gray-600">
+                  {userList[sec.key].map((movie) => (
+                    <li key={movie.id} className="truncate">
+                      • {movie.title}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p className="ml-2 text-gray-400 text-sm">No items</p>
+              )}
+            </div>
+          ))}
         </div>
       </div>
     </>
@@ -76,9 +102,34 @@ function Sidebar({ open, setOpen }) {
 }
 
 export default function Landing() {
+  // This is the right code the sample data below code is just for testing
+  // const { auth, userList = {} } = usePage().props;
+  // const authUser = auth?.user;
+  // const [sidebarOpen, setSidebarOpen] = React.useState(false);
+
+    // Sample data for testing (replace with actual `userList` from Inertia)
+  const userList = {
+    favorite: [
+      { id: 1, title: "Spirited Away" },
+      { id: 2, title: "Totoro" },
+    ],
+    plan: [
+      { id: 3, title: "Howl's Moving Castle" },
+    ],
+    on_hold: [
+      { id: 4, title: "Kiki's Delivery Service" },
+    ],
+    dropped: [],
+    finished: [
+      { id: 5, title: "Princess Mononoke" },
+      { id: 6, title: "Ponyo" },
+    ],
+  };
+
   const { auth } = usePage().props;
   const authUser = auth?.user;
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
+  
 
   return (
     <>
@@ -112,7 +163,7 @@ export default function Landing() {
       </nav>
 
       {authUser && (
-        <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} />
+        <Sidebar open={sidebarOpen} setOpen={setSidebarOpen} userList={userList} />
       )}
 
       {/* MAIN CONTENT */}
