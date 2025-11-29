@@ -17,6 +17,10 @@ Route::get('/', function () {
     ]);
 });
 
+Route::middleware('auth')->get('/dashboard', function () {
+    return redirect('/');
+})->name('dashboard');
+
 Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
     ->name('logout');
 
