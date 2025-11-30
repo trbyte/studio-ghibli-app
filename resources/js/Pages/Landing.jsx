@@ -216,8 +216,8 @@ export default function Landing() {
         </section>
 
         {/* About Section */}
-        <section id="about" className="p-12 text-center">
-          <h2 className="text-2xl font-bold mb-4">About</h2>
+        <section id="timeline" className="p-12 text-center">
+          <h2 className="text-2xl font-bold mb-4">Timeline</h2>
           <p className="max-w-2xl mx-auto text-base">
             Lorem ipsum dolor sit amet consectetur adipisicing elit...
           </p>
