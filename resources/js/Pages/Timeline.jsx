@@ -1,11 +1,84 @@
 
 import React, { useState, useRef, useEffect } from "react";
 
+// convert running time to hour and minutes examlpe: 1h 2m
+function formatRunningTime(value) {
+  const m = parseInt(value, 10);
+  if (Number.isNaN(m)) return value ?? "—";
+  const h = Math.floor(m / 60);
+  const r = m % 60;
+  if (h > 0) return `${h}h ${r}m`;
+  return `${r}m`;
+}
+
 export default function Timeline() {
-  const timeline = [
-    { title: "Title 1", date: "1986", desc: "Lorem ipsum dolor sit amet." },
-    { title: "Title 2", date: "1988", desc: "Ut enim ad minim veniam." },
-    { title: "Title 3", date: "1989", desc: "Duis aute irure dolor." },
+  const [timeline, setTimeline] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    let mounted = true;
+
+    async function fetchFilms() {
+      setLoading(true);
+      setError(null);
+
+      try {
+        const res = await fetch("https://ghibliapi.vercel.app/films");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+
+        if (!mounted) return;
+
+        // map all films to timeline items
+        const items = data.map((f) => ({
+          id: f.id,
+          title: f.title,
+          date: f.release_date,
+          desc: f.description,
+          original_title: f.original_title || f.original_title_romanised || null,
+          director: f.director,
+          producer: f.producer,
+          running_time: f.running_time,
+          rating: f.rt_score,
+          movie_banner: f.movie_banner || null,
+        }));
+
+        setTimeline(items);
+      } catch (err) {
+        setError(err.message || "Failed to fetch films");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    fetchFilms();
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  if (loading) {
+    return (
+      <section className="relative w-3/4 mx-auto py-12">
+        <p className="text-center text-gray-600">Loading timeline…</p>
+      </section>
+    );
+  }
+
+  if (error) {
+    return (
+      <section className="relative w-3/4 mx-auto py-12">
+        <p className="text-center text-red-500">Error: {error}</p>
+      </section>
+    );
+  }
+
+  const itemsToRender = timeline.length ? timeline : [
+    { id: null, title: "Title 1", date: "1986", desc: "Lorem ipsum dolor sit amet." },
+    { id: null, title: "Title 2", date: "1988", desc: "Ut enim ad minim veniam." },
+    { id: null, title: "Title 3", date: "1989", desc: "Duis aute irure dolor." },
   ];
 
   return (
@@ -13,7 +86,7 @@ export default function Timeline() {
       {/* Middle line */}
       <div className="absolute left-1/2 top-0 h-full w-px bg-gray-300 -translate-x-1/2"></div>
 
-      {timeline.map((item, index) => (
+      {itemsToRender.map((item, index) => (
         <TimelineItem
           key={index}
           item={item}
@@ -139,16 +212,16 @@ function TimelineItem({ item, isLeft, reverse }) {
           </>
         )}
 
-        {/* DETAILS POPUP */}
+            {/* DETAILS POPUP */}
         {showDetails && (
           <div
-            className={`absolute ${detailsPopupPosition} top-12 w-64 bg-white border rounded-md shadow-lg p-4 text-sm z-50`}
+            className={`absolute ${detailsPopupPosition} top-12 w-72 bg-white border rounded-md shadow-lg p-4 text-sm z-50`}
           >
-            <p><strong>Japanese Title:</strong> ______</p>
-            <p><strong>Director:</strong> ______</p>
-            <p><strong>Producer:</strong> ______</p>
-            <p><strong>Running Time:</strong> ______</p>
-            <p><strong>Rating:</strong> ______</p>
+            <p><strong>Japanese Title:</strong> {item.original_title ?? '—'}</p>
+            <p><strong>Director:</strong> {item.director ?? '—'}</p>
+            <p><strong>Producer:</strong> {item.producer ?? '—'}</p>
+            <p><strong>Running Time:</strong> {formatRunningTime(item.running_time)}</p>
+            <p><strong>Rating:</strong> {item.rating ?? '—'}</p>
           </div>
         )}
 
@@ -189,5 +262,3 @@ function TimelineItem({ item, isLeft, reverse }) {
     </div>
   );
 }
-
-
