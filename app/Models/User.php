@@ -45,4 +45,12 @@ class User extends Authenticatable implements MustVerifyEmail
             'password' => 'hashed',
         ];
     }
+
+    /**
+     * Get the film actions for the user.
+     */
+    public function filmActions()
+    {
+        return $this->hasMany(FilmAction::class);
+    }
 }

@@ -1,7 +1,8 @@
+import React, { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
+import { router } from "@inertiajs/react";
 
-import React, { useState, useRef, useEffect } from "react";
-
-// convert running time to hour and minutes examlpe: 1h 2m
+// convert running time to hour and minutes (example: 1h 2m)
 function formatRunningTime(value) {
   const m = parseInt(value, 10);
   if (Number.isNaN(m)) return value ?? "—";
@@ -11,7 +12,7 @@ function formatRunningTime(value) {
   return `${r}m`;
 }
 
-export default function Timeline() {
+export default function Timeline({ userList = {} }) {
   const [timeline, setTimeline] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -75,16 +76,23 @@ export default function Timeline() {
     );
   }
 
-  const itemsToRender = timeline.length ? timeline : [
-    { id: null, title: "Title 1", date: "1986", desc: "Lorem ipsum dolor sit amet." },
-    { id: null, title: "Title 2", date: "1988", desc: "Ut enim ad minim veniam." },
-    { id: null, title: "Title 3", date: "1989", desc: "Duis aute irure dolor." },
-  ];
+  const itemsToRender = timeline.length
+    ? timeline
+    : [
+        { id: null, title: "Title 1", date: "1986", desc: "Lorem ipsum dolor sit amet." },
+        { id: null, title: "Title 2", date: "1988", desc: "Ut enim ad minim veniam." },
+        { id: null, title: "Title 3", date: "1989", desc: "Duis aute irure dolor." },
+      ];
 
   return (
     <section className="relative w-3/4 mx-auto py-12">
-      {/* Middle line */}
-      <div className="absolute left-1/2 top-0 h-full w-px bg-gray-300 -translate-x-1/2"></div>
+      {/* Timeline Line */}
+      <motion.div
+        className="absolute left-1/2 top-0 h-full w-px bg-gray-300 -translate-x-1/2"
+        initial={{ height: 0 }}
+        animate={{ height: "100%" }}
+        transition={{ duration: 1.5, ease: "easeOut" }}
+      ></motion.div>
 
       {itemsToRender.map((item, index) => (
         <TimelineItem
@@ -92,6 +100,7 @@ export default function Timeline() {
           item={item}
           isLeft={index % 2 === 0}
           reverse={index % 2 === 1}
+          userList={userList}
         />
       ))}
     </section>
@@ -102,10 +111,25 @@ export default function Timeline() {
 /*                            TIMELINE ITEM                           */
 /* ================================================================== */
 
-function TimelineItem({ item, isLeft, reverse }) {
+function TimelineItem({ item, isLeft, reverse, userList = {} }) {
   const [showDetails, setShowDetails] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
+
+  const handleActionClick = (actionKey) => {
+    if (!item.id) return; // Skip if no film ID
+    
+    router.post('/film-actions', {
+      film_id: item.id,
+      film_title: item.title,
+      action_type: actionKey,
+    }, {
+      preserveScroll: true,
+      onSuccess: () => {
+        setMenuOpen(false);
+      },
+    });
+  };
 
   useEffect(() => {
     function handleClickOutside(e) {
@@ -125,24 +149,23 @@ function TimelineItem({ item, isLeft, reverse }) {
     { key: "finished", label: "Finished", icon: "check_circle" },
   ];
 
-  /* ------------------------------------------
-     BUTTON ROW ALIGNMENT (MIRRORING)
-  ------------------------------------------- */
   const buttonRowClass = isLeft
     ? "flex items-center mt-3 space-x-4 relative"
     : "flex items-center mt-3 space-x-4 relative justify-end";
 
-  /* Details popup alignment */
   const detailsPopupPosition = isLeft ? "-left-4" : "right-0";
 
-  /* Dropdown menu alignment */
   const menuPosition = isLeft
     ? "left-[85px]"
     : "right-[100px] flex flex-col items-end";
 
   return (
-    <div className={`relative w-1/2 py-6 ${isLeft ? "pr-8" : "pl-8 ml-auto"}`}>
-      
+    <motion.div
+      className={`relative w-1/2 py-6 ${isLeft ? "pr-8" : "pl-8 ml-auto"}`}
+      initial={{ opacity: 0, y: 30 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.6 }}
+    >
       {/* Dot marker */}
       <div className="absolute top-6 left-1/2 w-3 h-3 bg-gray-400 rounded-full -translate-x-1/2"></div>
 
@@ -165,13 +188,10 @@ function TimelineItem({ item, isLeft, reverse }) {
         <p className="text-sm text-gray-700">{item.desc}</p>
       </div>
 
-      {/* BUTTON ROW */}
+      {/* Action buttons */}
       <div className={buttonRowClass} ref={menuRef}>
-        
-        {/* ============= LEFT SIDE BUTTON ORDER ============= */}
         {isLeft && (
           <>
-            {/* Details button */}
             <button
               onMouseEnter={() => setShowDetails(true)}
               onMouseLeave={() => setShowDetails(false)}
@@ -180,7 +200,6 @@ function TimelineItem({ item, isLeft, reverse }) {
               Details
             </button>
 
-            {/* PLUS button */}
             <button
               onClick={() => setMenuOpen((prev) => !prev)}
               className="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center shadow"
@@ -190,10 +209,8 @@ function TimelineItem({ item, isLeft, reverse }) {
           </>
         )}
 
-        {/* ============= RIGHT SIDE BUTTON ORDER ============= */}
         {!isLeft && (
           <>
-            {/* PLUS button */}
             <button
               onClick={() => setMenuOpen((prev) => !prev)}
               className="w-10 h-10 bg-black text-white rounded-full flex items-center justify-center shadow"
@@ -201,7 +218,6 @@ function TimelineItem({ item, isLeft, reverse }) {
               <span className="material-symbols-outlined text-2xl">add</span>
             </button>
 
-            {/* Details button */}
             <button
               onMouseEnter={() => setShowDetails(true)}
               onMouseLeave={() => setShowDetails(false)}
@@ -212,7 +228,6 @@ function TimelineItem({ item, isLeft, reverse }) {
           </>
         )}
 
-            {/* DETAILS POPUP */}
         {showDetails && (
           <div
             className={`absolute ${detailsPopupPosition} top-12 w-72 bg-white border rounded-md shadow-lg p-4 text-sm z-50`}
@@ -225,40 +240,46 @@ function TimelineItem({ item, isLeft, reverse }) {
           </div>
         )}
 
-        {/* DROPDOWN MENU */}
         {menuOpen && (
           <div className={`absolute ${menuPosition} top-12 space-y-2 z-50`}>
-
-            {actions.map((action) => (
-              <div
-                key={action.key}
-                className={`flex items-center space-x-2 ${
-                  isLeft ? "" : "flex-row-reverse space-x-reverse"
-                }`}
-              >
-                {/* ICON BUTTON */}
-                <button
-                  onClick={() => {
-                    console.log("Selected:", action.key);
-                    setMenuOpen(false);
-                  }}
-                  className="w-9 h-9 bg-white border rounded-full flex items-center justify-center shadow hover:bg-gray-100 transition"
+            {actions.map((action) => {
+              const isActive = userList[action.key]?.some(film => film.id === item.id);
+              return (
+                <div
+                  key={action.key}
+                  className={`flex items-center space-x-2 ${
+                    isLeft ? "" : "flex-row-reverse space-x-reverse"
+                  }`}
                 >
-                  <span className="material-symbols-outlined text-base">
-                    {action.icon}
-                  </span>
-                </button>
+                  <button
+                    onClick={() => handleActionClick(action.key)}
+                    className={`w-9 h-9 border rounded-full flex items-center justify-center shadow transition ${
+                      isActive 
+                        ? "bg-yellow-400 border-yellow-500" 
+                        : "bg-white border-gray-300 hover:bg-gray-100"
+                    }`}
+                  >
+                    <span className="material-symbols-outlined text-base">
+                      {action.icon}
+                    </span>
+                  </button>
 
-                {/* LABEL */}
-                <div className="px-4 py-2 bg-white rounded-full border shadow text-sm">
-                  {action.label}
+                  <button
+                    onClick={() => handleActionClick(action.key)}
+                    className={`px-4 py-2 rounded-full border shadow text-sm transition ${
+                      isActive
+                        ? "bg-yellow-50 border-yellow-300 text-yellow-800"
+                        : "bg-white border-gray-300 hover:bg-gray-50"
+                    }`}
+                  >
+                    {action.label}
+                  </button>
                 </div>
-              </div>
-            ))}
-
+              );
+            })}
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
