@@ -105,6 +105,22 @@ export default function Landing() {
   const { auth, userList = {} } = usePage().props;
   const authUser = auth?.user;
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
+  const [films, setFilms] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+
+  // Load films via AJAX to avoid blocking initial page render
+  React.useEffect(() => {
+    fetch('/api/films')
+      .then(res => res.json())
+      .then(data => {
+        setFilms(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to load films:', err);
+        setLoading(false);
+      });
+  }, []);
 
   return (
     <>
@@ -198,7 +214,13 @@ export default function Landing() {
           </p>
         </section>
 
-        <Timeline userList={userList} />
+        {loading ? (
+          <div className="text-center py-12">
+            <p className="text-lg text-gray-600">Loading films...</p>
+          </div>
+        ) : (
+          <Timeline userList={userList} films={films} />
+        )}
 
         {/* Contact Section */}
         <section id="contact" className="p-12 text-center">

@@ -12,61 +12,20 @@ function formatRunningTime(value) {
   return `${r}m`;
 }
 
-export default function Timeline({ userList = {} }) {
-  const [timeline, setTimeline] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    let mounted = true;
-
-    async function fetchFilms() {
-      setLoading(true);
-      setError(null);
-
-      try {
-        const res = await fetch("https://ghibliapi.vercel.app/films");
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-
-        if (!mounted) return;
-
-        // map all films to timeline items
-        const items = data.map((f) => ({
-          id: f.id,
-          title: f.title,
-          date: f.release_date,
-          desc: f.description,
-          original_title: f.original_title || f.original_title_romanised || null,
-          director: f.director,
-          producer: f.producer,
-          running_time: f.running_time,
-          rating: f.rt_score,
-          movie_banner: f.movie_banner || null,
-        }));
-
-        setTimeline(items);
-      } catch (err) {
-        setError(err.message || "Failed to fetch films");
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    fetchFilms();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  if (loading) {
-    return (
-      <section className="relative w-3/4 mx-auto py-12">
-        <p className="text-center text-gray-600">Loading timeline…</p>
-      </section>
-    );
-  }
+export default function Timeline({ films = [], userList = {}, error = null }) {
+  // Map films data to timeline items
+  const timeline = films.map((f) => ({
+    id: f.id,
+    title: f.title,
+    date: f.release_date,
+    desc: f.description,
+    original_title: f.original_title || f.original_title_romanised || null,
+    director: f.director,
+    producer: f.producer,
+    running_time: f.running_time,
+    rating: f.rt_score,
+    movie_banner: f.movie_banner || null,
+  }));
 
   if (error) {
     return (
