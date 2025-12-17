@@ -26,11 +26,11 @@ export default function Login({ status, canResetPassword }) {
             <Head title="Log in" />
 
             <div className="space-y-6">
-                {status && (
+            {status && (
                     <div className="rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
-                        {status}
-                    </div>
-                )}
+                    {status}
+                </div>
+            )}
 
                 <div className="space-y-2">
                     <p className="inline-flex items-center gap-2 rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-sky-700 ring-1 ring-sky-100">
@@ -49,26 +49,26 @@ export default function Login({ status, canResetPassword }) {
 
                 <form onSubmit={submit} className="space-y-5">
                     <div className="space-y-4">
-                        <div>
-                            <InputLabel htmlFor="email" value="Email" />
+                <div>
+                    <InputLabel htmlFor="email" value="Email" />
 
-                            <TextInput
-                                id="email"
-                                type="email"
-                                name="email"
-                                value={data.email}
-                                className="mt-1 block w-full"
-                                autoComplete="username"
-                                isFocused={true}
-                                onChange={(e) => setData('email', e.target.value)}
-                            />
+                    <TextInput
+                        id="email"
+                        type="email"
+                        name="email"
+                        value={data.email}
+                        className="mt-1 block w-full"
+                        autoComplete="username"
+                        isFocused={true}
+                        onChange={(e) => setData('email', e.target.value)}
+                    />
 
-                            <InputError message={errors.email} className="mt-2" />
-                        </div>
+                    <InputError message={errors.email} className="mt-2" />
+                </div>
 
                         <div>
                             <div className="flex items-center justify-between">
-                                <InputLabel htmlFor="password" value="Password" />
+                    <InputLabel htmlFor="password" value="Password" />
                                 {canResetPassword && (
                                     <Link
                                         href={route('password.request')}
@@ -79,33 +79,33 @@ export default function Login({ status, canResetPassword }) {
                                 )}
                             </div>
 
-                            <TextInput
-                                id="password"
-                                type="password"
-                                name="password"
-                                value={data.password}
-                                className="mt-1 block w-full"
-                                autoComplete="current-password"
-                                onChange={(e) => setData('password', e.target.value)}
-                            />
+                    <TextInput
+                        id="password"
+                        type="password"
+                        name="password"
+                        value={data.password}
+                        className="mt-1 block w-full"
+                        autoComplete="current-password"
+                        onChange={(e) => setData('password', e.target.value)}
+                    />
 
-                            <InputError message={errors.password} className="mt-2" />
+                    <InputError message={errors.password} className="mt-2" />
                         </div>
-                    </div>
+                </div>
 
                     <div className="flex items-center justify-between rounded-xl bg-sky-50 px-4 py-3 ring-1 ring-sky-100">
                         <label className="flex items-center gap-3">
-                            <Checkbox
-                                name="remember"
-                                checked={data.remember}
+                        <Checkbox
+                            name="remember"
+                            checked={data.remember}
                                 onChange={(e) => setData('remember', e.target.checked)}
-                            />
+                        />
                             <span className="text-sm text-gray-700">Remember me</span>
                         </label>
                         <span className="text-xs text-gray-500">
                             Secure login enabled
                         </span>
-                    </div>
+                </div>
 
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <Link
@@ -114,12 +114,12 @@ export default function Login({ status, canResetPassword }) {
                         >
                             New here? Create an account
                         </Link>
-
+            
                         <PrimaryButton className="justify-center px-6" disabled={processing}>
-                            Log in
-                        </PrimaryButton>
-                    </div>
-                </form>
+                        Log in
+                    </PrimaryButton>
+                </div>
+            </form>
             </div>
         </GuestLayout>
     );

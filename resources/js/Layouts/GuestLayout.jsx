@@ -55,9 +55,9 @@ export default function GuestLayout({ children }) {
                                         Fan Library
                                     </span>
                                 </div>
-                            </Link>
-                        </div>
-                        {children}
+                </Link>
+            </div>
+                {children}
                     </div>
                 </div>
             </div>
