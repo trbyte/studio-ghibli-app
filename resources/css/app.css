@@ -2,6 +2,10 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Global UX polish */
+html {
+  scroll-behavior: smooth;
+}
 /* --- 3D Rotating Card Carousel --- */
 
 .wrapper {
