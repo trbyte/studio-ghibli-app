@@ -2,7 +2,6 @@ import React, { useState, useEffect, useRef } from "react";
 import { router } from "@inertiajs/react";
 import Modal from "../Components/Modal";
 import { motion, useInView, AnimatePresence, useScroll, useTransform } from "framer-motion";
-import { router } from "@inertiajs/react";
 
 // --- Helper Functions ---
 function formatRunningTime(value) {

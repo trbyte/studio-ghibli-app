@@ -1,5 +1,5 @@
 import React from "react";
-import { Link, useForm, usePage } from "@inertiajs/react";
+import { Link, useForm, usePage, router } from "@inertiajs/react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Timeline from "./Timeline";
 import { Carousel3D } from "../Components/Carousel3D";
@@ -368,7 +368,7 @@ export default function Landing() {
   }, []);
 
   return (
-    <>
+    <div className="custom-cursor-area">
       <CustomCursor />
       {/* NAVBAR */}
       <nav
@@ -710,6 +710,6 @@ export default function Landing() {
           </div>
         </footer>
       </div>
-    </>
+    </div>
   );
 }
