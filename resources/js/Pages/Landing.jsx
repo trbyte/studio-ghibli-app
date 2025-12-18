@@ -102,34 +102,25 @@ function Sidebar({ open, setOpen, userList }) {
 }
 
 export default function Landing() {
-  // This is the right code the sample data below code is just for testing
-  // const { auth, userList = {} } = usePage().props;
-  // const authUser = auth?.user;
-  // const [sidebarOpen, setSidebarOpen] = React.useState(false);
-
-    // Sample data for testing (replace with actual `userList` from Inertia)
-  const userList = {
-    favorite: [
-      { id: 1, title: "Spirited Away" },
-      { id: 2, title: "Totoro" },
-    ],
-    plan: [
-      { id: 3, title: "Howl's Moving Castle" },
-    ],
-    on_hold: [
-      { id: 4, title: "Kiki's Delivery Service" },
-    ],
-    dropped: [],
-    finished: [
-      { id: 5, title: "Princess Mononoke" },
-      { id: 6, title: "Ponyo" },
-    ],
-  };
-
-  const { auth } = usePage().props;
+  const { auth, userList = {} } = usePage().props;
   const authUser = auth?.user;
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
-  
+  const [films, setFilms] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+
+  // Load films via AJAX to avoid blocking initial page render
+  React.useEffect(() => {
+    fetch('/api/films')
+      .then(res => res.json())
+      .then(data => {
+        setFilms(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to load films:', err);
+        setLoading(false);
+      });
+  }, []);
 
   return (
     <>
@@ -178,12 +169,12 @@ export default function Landing() {
             <p className="text-lg max-w-xl mb-6 text-center">
               Explore the world of Studio Ghibli. Lorem ipsum dolor sit amet.
             </p>
-            <Link
-              href="/login"
+            <a
+              href="#contact"
               className="bg-gray-200 text-gray-900 px-6 py-3 rounded-md font-bold hover:bg-gray-300 transition"
             >
-              Get Started
-            </Link>
+              Contact Us
+            </a>
           </div>
 
           <div className="wrapper z-0 absolute bottom-0 mb-12">
@@ -223,7 +214,13 @@ export default function Landing() {
           </p>
         </section>
 
-        <Timeline />
+        {loading ? (
+          <div className="text-center py-12">
+            <p className="text-lg text-gray-600">Loading films...</p>
+          </div>
+        ) : (
+          <Timeline userList={userList} films={films} />
+        )}
 
         {/* Contact Section */}
         <section id="contact" className="p-12 text-center">

@@ -23,6 +23,6 @@
         "vite": "^7.0.7"
     },
     "dependencies": {
-        "framer-motion": "^12.23.24"
+        "framer-motion": "^12.23.25"
     }
 }
