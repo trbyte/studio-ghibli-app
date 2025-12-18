@@ -2,6 +2,9 @@ import React from "react";
 import { Link, usePage } from "@inertiajs/react";
 import { motion } from "framer-motion";
 import Timeline from "./Timeline";
+import { Carousel3D } from "../Components/Carousel3D";
+import { CustomCursor } from "../Components/CustomCursor";
+import Modal from "../Components/Modal";
 
 function UserMenu({ authUser }) {
   const [open, setOpen] = React.useState(false);
@@ -23,7 +26,7 @@ function UserMenu({ authUser }) {
     <div ref={menuRef} className="relative inline-block text-left">
       <button
         onClick={() => setOpen(!open)}
-        className="group inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-emerald-700 shadow-lg shadow-emerald-100 ring-1 ring-emerald-100 transition hover:-translate-y-0.5 hover:bg-emerald-50 hover:text-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-300"
+        className="group inline-flex h-11 w-11 items-center justify-center rounded-full bg-slate-800/80 text-yellow-400 shadow-lg shadow-black/40 ring-1 ring-yellow-400/30 backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-slate-700/80 hover:text-yellow-300 hover:ring-yellow-400/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400/50"
       >
         <span className="material-symbols-outlined text-3xl transition group-hover:scale-105">
           account_circle
@@ -31,8 +34,8 @@ function UserMenu({ authUser }) {
       </button>
 
       {open && (
-        <div className="absolute right-0 mt-2 w-40 bg-white shadow-md rounded-md border z-50">
-          <div className="px-4 py-2 font-semibold border-b">
+        <div className="absolute right-0 mt-2 w-40 bg-slate-800/95 backdrop-blur-xl shadow-xl shadow-black/60 rounded-lg border border-yellow-400/20 z-50 overflow-hidden">
+          <div className="px-4 py-2 font-semibold text-white border-b border-yellow-400/20 bg-slate-900/50">
             {authUser.name}
           </div>
 
@@ -40,7 +43,7 @@ function UserMenu({ authUser }) {
             href="/logout"
             method="post"
             as="button"
-            className="block w-full text-left px-4 py-2 hover:bg-gray-100"
+            className="block w-full text-left px-4 py-2 text-slate-200 hover:bg-slate-700/60 hover:text-yellow-400 transition"
           >
             Logout
           </Link>
@@ -51,6 +54,38 @@ function UserMenu({ authUser }) {
 }
 
 function Sidebar({ open, setOpen, userList }) {
+  const [editingMovie, setEditingMovie] = React.useState(null);
+  const [notes, setNotes] = React.useState("");
+  const [movieNotes, setMovieNotes] = React.useState({});
+  const [moviesMap, setMoviesMap] = React.useState({});
+
+  // Fetch movie data to get images
+  React.useEffect(() => {
+    async function fetchMovies() {
+      try {
+        const res = await fetch("https://ghibliapi.vercel.app/films");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        
+        const map = {};
+        data.forEach((f) => {
+          map[f.id] = {
+            id: f.id,
+            title: f.title,
+            image: f.image || f.movie_banner,
+            movie_banner: f.movie_banner,
+          };
+        });
+        
+        setMoviesMap(map);
+      } catch (err) {
+        console.error("Failed to fetch movies:", err);
+      }
+    }
+    
+    fetchMovies();
+  }, []);
+
   const sections = [
     { key: "favorite", label: "Favorites", icon: "star" },
     { key: "plan", label: "Plan to Watch", icon: "bookmark" },
@@ -59,30 +94,51 @@ function Sidebar({ open, setOpen, userList }) {
     { key: "finished", label: "Finished", icon: "check_circle" },
   ];
 
+  const handleEditClick = (movie) => {
+    setEditingMovie(movie);
+    setNotes(movieNotes[movie.id] || "");
+  };
+
+  const handleSaveNotes = () => {
+    if (editingMovie) {
+      setMovieNotes(prev => ({
+        ...prev,
+        [editingMovie.id]: notes
+      }));
+      setEditingMovie(null);
+      setNotes("");
+    }
+  };
+
+  const handleCloseModal = () => {
+    setEditingMovie(null);
+    setNotes("");
+  };
+
   return (
     <>
       {open && (
         <div
-          className="fixed inset-0 bg-gradient-to-br from-black/60 via-slate-900/50 to-emerald-900/40 backdrop-blur-sm z-[55] transition-opacity duration-300"
+          className="fixed inset-0 bg-gradient-to-br from-black/70 via-slate-900/60 to-black/70 backdrop-blur-sm z-[55] transition-opacity duration-300"
           onClick={() => setOpen(false)}
         />
       )}
 
       <div
-        className={`fixed top-0 right-0 h-screen w-[320px] bg-white/95 backdrop-blur-2xl
-          shadow-2xl shadow-emerald-200/40 border-l border-white/60 z-[60] overflow-y-auto transform
+        className={`fixed top-0 right-0 h-screen w-[320px] bg-slate-900/95 backdrop-blur-2xl
+          shadow-2xl shadow-black/60 border-l border-yellow-400/20 z-[60] overflow-y-auto transform
           transition-transform duration-300 ${open ? "translate-x-0" : "translate-x-full"}`}
       >
-        <div className="sticky top-0 flex items-center justify-between bg-white/70 px-4 py-3 backdrop-blur border-b border-emerald-100">
+        <div className="sticky top-0 flex items-center justify-between bg-slate-900/90 px-4 py-3 backdrop-blur border-b border-yellow-400/20">
           <div>
-            <div className="text-xs font-semibold uppercase tracking-[0.24em] text-emerald-600">
+            <div className="text-xs font-semibold uppercase tracking-[0.24em] text-yellow-400">
               Lists
             </div>
-            <div className="text-lg font-semibold text-gray-900">Your Library</div>
+            <div className="text-lg font-semibold text-white">Your Library</div>
           </div>
           <button
             onClick={() => setOpen(false)}
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-emerald-50 text-emerald-700 shadow-sm ring-1 ring-emerald-100 transition hover:bg-emerald-100"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-yellow-400/10 text-yellow-400 shadow-sm ring-1 ring-yellow-400/30 transition hover:bg-yellow-400/20 hover:text-yellow-300"
             aria-label="Close sidebar"
           >
             <span className="material-symbols-outlined">close</span>
@@ -95,42 +151,121 @@ function Sidebar({ open, setOpen, userList }) {
             return (
               <div
                 key={sec.key}
-                className="rounded-2xl border border-emerald-50 bg-white/70 p-3 shadow-sm shadow-emerald-50"
+                className="rounded-2xl border border-yellow-400/20 bg-slate-800/60 p-3 shadow-lg shadow-black/40 ring-1 ring-yellow-400/10"
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center font-semibold text-gray-800 gap-2">
-                    <span className="material-symbols-outlined text-emerald-600">
+                  <div className="flex items-center font-semibold text-slate-100 gap-2">
+                    <span className="material-symbols-outlined text-yellow-400">
                       {sec.icon}
                     </span>
                     {sec.label}
                   </div>
-                  <span className="rounded-full bg-emerald-50 px-2.5 py-0.5 text-xs font-semibold text-emerald-700">
+                  <span className="rounded-full bg-yellow-400/20 px-2.5 py-0.5 text-xs font-semibold text-yellow-300 ring-1 ring-yellow-400/30">
                     {items.length}
                   </span>
                 </div>
 
                 {items.length > 0 ? (
-                  <ul className="mt-3 space-y-2 text-gray-700">
-                    {items.map((movie) => (
-                      <li
-                        key={movie.id}
-                        className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-sky-50 to-emerald-50 px-3 py-2 text-sm font-medium text-gray-800 ring-1 ring-emerald-50"
-                      >
-                        <span className="material-symbols-outlined text-sky-600 text-base">
-                          movie
-                        </span>
-                        <span className="truncate">{movie.title}</span>
+                  <ul className="mt-3 space-y-2">
+                    {items.map((movie) => {
+                      const movieData = moviesMap[movie.id] || movie;
+                      const hasImage = movieData.image || movieData.movie_banner;
+                      
+                      return (
+                        <li
+                          key={movie.id}
+                          className="flex items-center justify-between gap-2 rounded-lg bg-slate-700/40 px-3 py-2 text-sm font-medium text-slate-100 ring-1 ring-yellow-400/10 hover:bg-slate-700/60 hover:ring-yellow-400/20 transition-all"
+                        >
+                          <div className="flex items-center gap-2 flex-1 min-w-0">
+                            {hasImage ? (
+                              <img
+                                src={movieData.image || movieData.movie_banner}
+                                alt={movie.title}
+                                className="w-10 h-14 object-cover rounded flex-shrink-0 ring-1 ring-yellow-400/20"
+                                onError={(e) => {
+                                  e.target.style.display = 'none';
+                                  const fallback = e.target.nextElementSibling;
+                                  if (fallback) fallback.style.display = 'inline';
+                                }}
+                              />
+                            ) : null}
+                            <span 
+                              className="material-symbols-outlined text-yellow-400 text-base flex-shrink-0"
+                              style={{ display: hasImage ? 'none' : 'inline' }}
+                            >
+                              movie
+                            </span>
+                          <span className="truncate text-slate-100">{movie.title}</span>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleEditClick(movie);
+                          }}
+                          className="p-1.5 rounded-lg hover:bg-yellow-400/20 text-yellow-400 flex-shrink-0 transition-colors"
+                          aria-label="Edit notes"
+                        >
+                          <span className="material-symbols-outlined text-base">edit</span>
+                        </button>
                       </li>
-                    ))}
+                    );
+                    })}
                   </ul>
                 ) : (
-                  <p className="mt-3 text-sm text-gray-400">No items yet</p>
+                  <p className="mt-3 text-sm text-slate-400">No items yet</p>
                 )}
               </div>
             );
           })}
         </div>
       </div>
+
+      {/* Notes Edit Modal */}
+      <Modal show={!!editingMovie} onClose={handleCloseModal} maxWidth="md">
+        <div className="p-6">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-semibold text-white">
+              Edit Notes: {editingMovie?.title}
+            </h3>
+            <button
+              onClick={handleCloseModal}
+              className="text-slate-400 hover:text-slate-200 transition"
+            >
+              <span className="material-symbols-outlined">close</span>
+            </button>
+          </div>
+          
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-slate-200 mb-2">
+                Your Notes
+              </label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                rows={8}
+                className="w-full rounded-xl border border-yellow-400/30 bg-slate-800/60 px-4 py-3 text-sm text-slate-100 shadow-inner shadow-black/40 placeholder:text-slate-500 focus:border-yellow-400/50 focus:outline-none focus:ring-2 focus:ring-yellow-400/30 resize-none"
+                placeholder="Write your thoughts, favorite scenes, or anything you want to remember about this film..."
+              />
+            </div>
+            
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={handleCloseModal}
+                className="px-4 py-2 rounded-xl border border-slate-600 bg-slate-800 text-slate-200 text-sm font-semibold hover:bg-slate-700 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleSaveNotes}
+                className="px-4 py-2 rounded-xl bg-yellow-400 text-slate-950 text-sm font-semibold shadow-lg shadow-yellow-500/40 hover:bg-yellow-300 transition"
+              >
+                Save Notes
+              </button>
+            </div>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 }
@@ -139,12 +274,43 @@ export default function Landing() {
   const { auth, userList = {} } = usePage().props;
   const authUser = auth?.user;
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
+  const [movies, setMovies] = React.useState([]);
+  const [moviesLoading, setMoviesLoading] = React.useState(true);
+
+  // Fetch movies for carousel
+  React.useEffect(() => {
+    async function fetchMovies() {
+      try {
+        const res = await fetch("https://ghibliapi.vercel.app/films");
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        
+        const films = data.map((f) => ({
+          id: f.id,
+          title: f.title,
+          release_date: f.release_date,
+          director: f.director,
+          image: f.image || f.movie_banner,
+          movie_banner: f.movie_banner,
+        }));
+        
+        setMovies(films);
+      } catch (err) {
+        console.error("Failed to fetch movies:", err);
+      } finally {
+        setMoviesLoading(false);
+      }
+    }
+    
+    fetchMovies();
+  }, []);
 
   return (
     <>
+      <CustomCursor />
       {/* NAVBAR */}
       <nav
-        className="fixed top-0 left-0 w-full flex justify-between items-center px-6 py-3 bg-transparent backdrop-blur-sm z-50"
+        className="fixed top-0 left-0 w-full flex justify-between items-center px-6 py-3 bg-slate-950/40 backdrop-blur-md z-50"
       >
         <button
           type="button"
@@ -160,7 +326,7 @@ export default function Landing() {
           {authUser && (
             <button
               onClick={() => setSidebarOpen(true)}
-              className="group inline-flex h-11 w-11 items-center justify-center rounded-full bg-white text-emerald-700 shadow-lg shadow-emerald-100 ring-1 ring-emerald-100 transition hover:-translate-y-0.5 hover:bg-emerald-50 hover:text-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-emerald-300"
+              className="group inline-flex h-11 w-11 items-center justify-center rounded-full bg-slate-800/80 text-yellow-400 shadow-lg shadow-black/40 ring-1 ring-yellow-400/30 backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-slate-700/80 hover:text-yellow-300 hover:ring-yellow-400/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400/50"
             >
               <span className="material-symbols-outlined text-3xl transition group-hover:scale-105">
                 book
@@ -192,7 +358,7 @@ export default function Landing() {
         {/* HERO SECTION */}
         <section
           id="hero"
-          className="h-screen flex flex-col justify-start items-center text-center px-6 relative overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950"
+          className="min-h-[140vh] flex flex-col justify-start items-center text-center px-6 relative overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950"
         >
           <motion.div
             className="flex flex-col items-center z-10 mt-28"
@@ -200,10 +366,10 @@ export default function Landing() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, ease: "easeOut" }}
           >
-            <h1 className="text-5xl font-bold mb-4 text-center drop-shadow-[0_0_25px_rgba(250,204,21,0.45)] text-white">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 text-center drop-shadow-[0_0_25px_rgba(250,204,21,0.45)] text-white px-4">
               Welcome to Studio Ghibli Explorer
             </h1>
-            <p className="text-lg max-w-2xl mb-6 text-center text-slate-300">
+            <p className="text-base sm:text-lg max-w-2xl mb-6 text-center text-slate-300 px-4">
               Explore the worlds, characters, and timeless stories of Studio Ghibli. Track your favorites, plan what to watch next, and celebrate every scene.
             </p>
             <a
@@ -215,32 +381,36 @@ export default function Landing() {
             </a>
           </motion.div>
 
-          <div className="wrapper z-0 absolute bottom-0 mb-12">
-            <div className="inner" style={{ "--quantity": 10 }}>
-              {[...Array(10).keys()].map((i) => (
-                <div
-                  key={i}
-                  className="card"
-                  style={{
-                    "--index": i,
-                    "--color-card": [
-                      "142,249,252",
-                      "142,252,204",
-                      "142,252,157",
-                      "215,252,142",
-                      "252,252,142",
-                      "252,208,142",
-                      "252,142,142",
-                      "252,142,239",
-                      "204,142,252",
-                      "142,202,252",
-                    ][i],
-                  }}
-                >
-                  <div className="img"></div>
-                </div>
-              ))}
-            </div>
+          <div className="w-full mt-4 sm:mt-6 md:mt-8 relative">
+            {!moviesLoading ? (
+              <Carousel3D 
+                movies={movies}
+                onSelectMovie={(movie) => {
+                  // Scroll to specific movie in timeline
+                  const movieElement = document.getElementById(`timeline-movie-${movie.id}`);
+                  if (movieElement) {
+                    // Calculate position to center the element in viewport
+                    const elementRect = movieElement.getBoundingClientRect();
+                    const absoluteElementTop = elementRect.top + window.pageYOffset;
+                    const middle = absoluteElementTop - (window.innerHeight / 2) + (elementRect.height / 2);
+                    window.scrollTo({
+                      top: middle,
+                      behavior: 'smooth'
+                    });
+                  } else {
+                    // Fallback: scroll to timeline section if movie not found
+                    const timelineElement = document.getElementById('timeline');
+                    if (timelineElement) {
+                      timelineElement.scrollIntoView({ behavior: 'smooth' });
+                    }
+                  }
+                }}
+              />
+            ) : (
+              <div className="h-[350px] sm:h-[400px] md:h-[450px] flex items-center justify-center">
+                <div className="w-10 h-10 sm:w-12 sm:h-12 border-4 border-yellow-400/30 border-t-yellow-400 rounded-full animate-spin"></div>
+              </div>
+            )}
           </div>
 
           {/* Bottom gradient transition to black timeline */}

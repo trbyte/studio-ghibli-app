@@ -257,6 +257,7 @@ const TimelineSection = ({ item, index, userList, setActiveImage, setBackgroundO
   return (
     // Changed: flex-col justify-center centers vertical content, but allows w-full for horizontal flow
     <div
+      id={`timeline-movie-${item.id}`}
       ref={containerRef}
       className="min-h-screen w-full flex flex-col justify-center relative py-20 snap-center"
     >
