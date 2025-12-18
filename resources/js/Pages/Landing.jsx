@@ -303,6 +303,21 @@ export default function Landing() {
     }
     
     fetchMovies();
+  const [films, setFilms] = React.useState([]);
+  const [loading, setLoading] = React.useState(true);
+
+  // Load films via AJAX to avoid blocking initial page render
+  React.useEffect(() => {
+    fetch('/api/films')
+      .then(res => res.json())
+      .then(data => {
+        setFilms(data);
+        setLoading(false);
+      })
+      .catch(err => {
+        console.error('Failed to load films:', err);
+        setLoading(false);
+      });
   }, []);
 
   return (
@@ -417,7 +432,13 @@ export default function Landing() {
           <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-b from-transparent via-slate-950/50 to-black z-10 pointer-events-none" />
         </section>
 
-        <Timeline userList={userList} />
+        {loading ? (
+          <div className="text-center py-12">
+            <p className="text-lg text-gray-600">Loading films...</p>
+          </div>
+        ) : (
+          <Timeline userList={userList} films={films} />
+        )}
 
         {/* Contact Section */}
         <motion.section

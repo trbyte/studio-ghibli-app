@@ -12,6 +12,7 @@ class FilmAction extends Model
         'film_id',
         'film_title',
         'action_type',
+        'note',
     ];
 
     /**

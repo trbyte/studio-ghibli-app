@@ -2,8 +2,10 @@
 
 namespace App\Http\Middleware;
 
+use App\Http\Controllers\GhibliController;
 use App\Models\FilmAction;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -32,27 +34,46 @@ class HandleInertiaRequests extends Middleware
     {
         $user = $request->user();
         $userList = [];
-        
+
         if ($user) {
-            $actions = FilmAction::where('user_id', $user->id)
-                ->get()
-                ->groupBy('action_type')
-                ->map(function ($items) {
-                    return $items->map(function ($item) {
+            // Fetch user's film actions
+            $actions = FilmAction::where('user_id', $user->id)->get();
+
+            // Fetch films from API with caching (60 minutes)
+            try {
+                $films = GhibliController::getCachedFilms();
+
+                // Create a lookup map for films by ID
+                $filmsMap = collect($films)->keyBy('id');
+
+                // Map actions with film titles from API
+                $actionsByType = $actions->groupBy('action_type')->map(function ($items) use ($filmsMap) {
+                    return $items->map(function ($item) use ($filmsMap) {
+                        $film = $filmsMap->get($item->film_id);
                         return [
                             'id' => $item->film_id,
-                            'title' => $item->film_title,
+                            'title' => $film['title'] ?? 'Unknown Film',
                         ];
                     })->values()->toArray();
                 });
 
-            $userList = [
-                'favorite' => $actions->get('favorite', []),
-                'plan' => $actions->get('plan', []),
-                'on_hold' => $actions->get('on_hold', []),
-                'dropped' => $actions->get('dropped', []),
-                'finished' => $actions->get('finished', []),
-            ];
+                $userList = [
+                    'favorite' => $actionsByType->get('favorite', []),
+                    'plan' => $actionsByType->get('plan', []),
+                    'on_hold' => $actionsByType->get('on_hold', []),
+                    'dropped' => $actionsByType->get('dropped', []),
+                    'finished' => $actionsByType->get('finished', []),
+                ];
+            } catch (\Exception $e) {
+                Log::error('Error in HandleInertiaRequests', ['message' => $e->getMessage()]);
+                $userList = [
+                    'favorite' => [],
+                    'plan' => [],
+                    'on_hold' => [],
+                    'dropped' => [],
+                    'finished' => [],
+                ];
+            }
         }
 
         return [
