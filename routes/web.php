@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\FilmActionController;
 use App\Http\Controllers\GhibliController;
+use App\Http\Controllers\ContactController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
@@ -30,6 +31,8 @@ Route::get('/timeline', [GhibliController::class, 'index'])->name('timeline');
 Route::get('/api/films', function () {
     return response()->json(GhibliController::getCachedFilms());
 });
+
+Route::post('/contact', [ContactController::class, 'send'])->name('contact.send');
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

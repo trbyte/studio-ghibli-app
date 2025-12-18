@@ -5,16 +5,11 @@
 /* Global UX polish */
 html {
   scroll-behavior: smooth;
-  cursor: none; /* Hide default cursor */
 }
 
-/* Custom cursor with color inversion */
-body {
-  cursor: none;
-}
-
-/* Hide default cursor on all interactive elements */
-a, button, input, textarea, select, [role="button"], [onclick], .cursor-pointer, [tabindex]:not([tabindex="-1"]) {
+/* Custom cursor with color inversion (scoped) */
+.custom-cursor-area,
+.custom-cursor-area * {
   cursor: none !important;
 }
 

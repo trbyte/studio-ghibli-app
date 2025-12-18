@@ -1,10 +1,33 @@
 import React from "react";
-import { Link, usePage, router } from "@inertiajs/react";
-import { motion } from "framer-motion";
+import { Link, useForm, usePage } from "@inertiajs/react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import Timeline from "./Timeline";
 import { Carousel3D } from "../Components/Carousel3D";
 import { CustomCursor } from "../Components/CustomCursor";
 import Modal from "../Components/Modal";
+
+// Hero motion variants
+const heroTextVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.9,
+      ease: "easeOut",
+      staggerChildren: 0.15,
+    },
+  },
+};
+
+const heroItemVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: "easeOut" },
+  },
+};
 
 function UserMenu({ authUser }) {
   const [open, setOpen] = React.useState(false);
@@ -179,8 +202,8 @@ function Sidebar({ open, setOpen, userList }) {
                       const hasImage = movieData.image || movieData.movie_banner;
                       
                       return (
-                        <li
-                          key={movie.id}
+                      <li
+                        key={movie.id}
                           className="flex items-center justify-between gap-2 rounded-lg bg-slate-700/40 px-3 py-2 text-sm font-medium text-slate-100 ring-1 ring-yellow-400/10 hover:bg-slate-700/60 hover:ring-yellow-400/20 transition-all"
                         >
                           <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -200,8 +223,8 @@ function Sidebar({ open, setOpen, userList }) {
                               className="material-symbols-outlined text-yellow-400 text-base flex-shrink-0"
                               style={{ display: hasImage ? 'none' : 'inline' }}
                             >
-                              movie
-                            </span>
+                          movie
+                        </span>
                           <span className="truncate text-slate-100">{movie.title}</span>
                         </div>
                         <button
@@ -283,6 +306,38 @@ export default function Landing() {
   const [sidebarOpen, setSidebarOpen] = React.useState(false);
   const [movies, setMovies] = React.useState([]);
   const [moviesLoading, setMoviesLoading] = React.useState(true);
+  const heroRef = React.useRef(null);
+
+  // Scroll-based animation for hero background
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.06]);
+  const heroY = useTransform(scrollYProgress, [0, 1], [0, -80]);
+
+  const {
+    data: contactData,
+    setData: setContactData,
+    post: postContact,
+    processing: contactProcessing,
+    errors: contactErrors,
+    reset: resetContact,
+  } = useForm({
+    name: "",
+    email: "",
+    message: "",
+  });
+
+  const handleContactSubmit = (e) => {
+    e.preventDefault();
+    postContact(route("contact.send"), {
+      preserveScroll: true,
+      onSuccess: () => {
+        resetContact();
+      },
+    });
+  };
 
   // Fetch movies for carousel
   React.useEffect(() => {
@@ -365,30 +420,48 @@ export default function Landing() {
         {/* HERO SECTION */}
         <section
           id="hero"
-          className="min-h-[140vh] flex flex-col justify-start items-center text-center px-6 relative overflow-hidden bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950"
+          ref={heroRef}
+          className="min-h-[140vh] flex flex-col justify-start items-center text-center px-6 relative overflow-hidden"
         >
+          {/* Scroll-reactive background layer */}
+          <motion.div
+            className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950"
+            style={{ scale: heroScale, y: heroY }}
+          />
           <motion.div
             className="flex flex-col items-center z-10 mt-28"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, ease: "easeOut" }}
+            variants={heroTextVariants}
+            initial="hidden"
+            animate="visible"
           >
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 text-center drop-shadow-[0_0_25px_rgba(250,204,21,0.45)] text-white px-4">
+            <motion.h1
+              variants={heroItemVariants}
+              className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 text-center drop-shadow-[0_0_25px_rgba(250,204,21,0.45)] text-white px-4"
+            >
               Welcome to Studio Ghibli Explorer
-            </h1>
-            <p className="text-base sm:text-lg max-w-2xl mb-6 text-center text-slate-300 px-4">
+            </motion.h1>
+            <motion.p
+              variants={heroItemVariants}
+              className="text-base sm:text-lg max-w-2xl mb-6 text-center text-slate-300 px-4"
+            >
               Explore the worlds, characters, and timeless stories of Studio Ghibli. Track your favorites, plan what to watch next, and celebrate every scene.
-            </p>
-            <a
+            </motion.p>
+            <motion.a
+              variants={heroItemVariants}
               href="#contact"
               className="inline-flex items-center gap-2 rounded-full bg-yellow-400 px-6 py-3 text-sm font-semibold text-slate-950 shadow-xl shadow-yellow-500/50 transition hover:bg-yellow-300 hover:shadow-yellow-400/70 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-300"
             >
               <span className="material-symbols-outlined text-base">mail</span>
               Contact Us
-            </a>
+            </motion.a>
           </motion.div>
 
-          <div className="w-full mt-4 sm:mt-6 md:mt-8 relative">
+          <motion.div
+            className="w-full mt-4 sm:mt-6 md:mt-8 relative"
+            initial={{ opacity: 0, y: 40 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut", delay: 0.4 }}
+          >
             {!moviesLoading ? (
               <Carousel3D 
                 movies={movies}
@@ -416,9 +489,9 @@ export default function Landing() {
             ) : (
               <div className="h-[350px] sm:h-[400px] md:h-[450px] flex items-center justify-center">
                 <div className="w-10 h-10 sm:w-12 sm:h-12 border-4 border-yellow-400/30 border-t-yellow-400 rounded-full animate-spin"></div>
-              </div>
+                </div>
             )}
-          </div>
+          </motion.div>
 
           {/* Bottom gradient transition to black timeline */}
           <div className="absolute bottom-0 left-0 right-0 h-64 bg-gradient-to-b from-transparent via-slate-950/50 to-black z-10 pointer-events-none" />
@@ -463,10 +536,10 @@ export default function Landing() {
                     <div>
                       <div className="text-sm font-semibold text-white">Email us</div>
                       <a
-                        href="mailto:info@ghibliapp.com"
+                        href="mailto:studioghiblifilmography@gmail.com"
                         className="text-sm text-yellow-300 underline underline-offset-4"
                       >
-                        info@ghibliapp.com
+                        studioghiblifilmography@gmail.com
                       </a>
                     </div>
                   </div>
@@ -523,7 +596,7 @@ export default function Landing() {
               </div>
 
               <div className="rounded-2xl border border-yellow-400/40 bg-slate-950/90 p-6 shadow-lg shadow-black/70 ring-1 ring-yellow-400/60">
-                <form className="space-y-4">
+                <form className="space-y-4" onSubmit={handleContactSubmit}>
                   <div className="grid gap-4 sm:grid-cols-2">
                     <div className="text-left">
                       <label className="block text-sm font-semibold text-slate-200">
@@ -531,9 +604,17 @@ export default function Landing() {
                       </label>
                       <input
                         type="text"
+                        name="name"
+                        value={contactData.name}
+                        onChange={(e) => setContactData("name", e.target.value)}
                         className="mt-1 w-full rounded-xl border border-yellow-400/60 bg-slate-900/80 px-3 py-2 text-sm text-slate-50 shadow-inner shadow-black/40 placeholder:text-slate-400 focus:border-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-300"
                         placeholder="Sophie"
                       />
+                      {contactErrors.name && (
+                        <p className="mt-1 text-xs text-red-400">
+                          {contactErrors.name}
+                        </p>
+                      )}
                     </div>
                     <div className="text-left">
                       <label className="block text-sm font-semibold text-slate-200">
@@ -541,9 +622,17 @@ export default function Landing() {
                       </label>
                       <input
                         type="email"
+                        name="email"
+                        value={contactData.email}
+                        onChange={(e) => setContactData("email", e.target.value)}
                         className="mt-1 w-full rounded-xl border border-yellow-400/60 bg-slate-900/80 px-3 py-2 text-sm text-slate-50 shadow-inner shadow-black/40 placeholder:text-slate-400 focus:border-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-300"
                         placeholder="you@example.com"
                       />
+                      {contactErrors.email && (
+                        <p className="mt-1 text-xs text-red-400">
+                          {contactErrors.email}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <div className="text-left">
@@ -552,16 +641,27 @@ export default function Landing() {
                     </label>
                     <textarea
                       rows={4}
+                      name="message"
+                      value={contactData.message}
+                      onChange={(e) =>
+                        setContactData("message", e.target.value)
+                      }
                       className="mt-1 w-full rounded-xl border border-yellow-400/60 bg-slate-900/80 px-3 py-2 text-sm text-slate-50 shadow-inner shadow-black/40 placeholder:text-slate-400 focus:border-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-300"
                       placeholder="Share your thoughts..."
                     />
+                    {contactErrors.message && (
+                      <p className="mt-1 text-xs text-red-400">
+                        {contactErrors.message}
+                      </p>
+                    )}
                   </div>
                   <button
-                    type="button"
+                    type="submit"
+                    disabled={contactProcessing}
                     className="inline-flex items-center justify-center gap-2 rounded-full bg-yellow-400 px-5 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-yellow-500/60 transition hover:bg-yellow-300 hover:shadow-yellow-400/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-300"
                   >
                     <span className="material-symbols-outlined text-base">send</span>
-                    Send message
+                    {contactProcessing ? "Sending..." : "Send message"}
                   </button>
                 </form>
               </div>
