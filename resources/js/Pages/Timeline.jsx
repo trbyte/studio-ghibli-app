@@ -11,61 +11,6 @@ function formatRunningTime(value) {
   return `${r}m`;
 }
 
-//  Timeline Item 
-const TimelineItem = ({ item, isLeft, reverse, userList }) => {
-export default function Timeline({ films = [], userList = {}, error = null }) {
-  // Map films data to timeline items
-  const timeline = films.map((f) => ({
-    id: f.id,
-    title: f.title,
-    date: f.release_date,
-    desc: f.description,
-    original_title: f.original_title || f.original_title_romanised || null,
-    director: f.director,
-    producer: f.producer,
-    running_time: f.running_time,
-    rating: f.rt_score,
-    movie_banner: f.movie_banner || null,
-  }));
-
-  if (error) {
-    return (
-      <section className="relative w-3/4 mx-auto py-12">
-        <p className="text-center text-red-500">Error: {error}</p>
-      </section>
-    );
-  }
-
-  const itemsToRender = timeline.length
-    ? timeline
-    : [
-        { id: null, title: "Title 1", date: "1986", desc: "Lorem ipsum dolor sit amet." },
-        { id: null, title: "Title 2", date: "1988", desc: "Ut enim ad minim veniam." },
-        { id: null, title: "Title 3", date: "1989", desc: "Duis aute irure dolor." },
-      ];
-
-  return (
-    <section className="relative w-3/4 mx-auto py-12">
-      {/* Timeline Line */}
-      <motion.div
-        className="absolute left-1/2 top-0 h-full w-px bg-gray-300 -translate-x-1/2"
-        initial={{ height: 0 }}
-        animate={{ height: "100%" }}
-        transition={{ duration: 1.5, ease: "easeOut" }}
-      ></motion.div>
-
-      {itemsToRender.map((item, index) => (
-        <TimelineItem
-          key={index}
-          item={item}
-          isLeft={index % 2 === 0}
-          reverse={index % 2 === 1}
-          userList={userList}
-        />
-      ))}
-    </section>
-  );
-}
 
 /* ================================================================== */
 /*                            TIMELINE ITEM                           */
