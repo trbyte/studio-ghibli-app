@@ -25,13 +25,30 @@ export default function Login({ status, canResetPassword }) {
         <GuestLayout>
             <Head title="Log in" />
 
+            <div className="space-y-6">
             {status && (
-                <div className="mb-4 text-sm font-medium text-green-600">
+                    <div className="rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-sm font-medium text-emerald-700">
                     {status}
                 </div>
             )}
 
-            <form onSubmit={submit}>
+                <div className="space-y-2">
+                    <p className="inline-flex items-center gap-2 rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.22em] text-sky-700 ring-1 ring-sky-100">
+                        Welcome back
+                    </p>
+                    <div className="space-y-1">
+                        <h1 className="text-2xl font-semibold text-gray-900">
+                            Sign in to continue
+                        </h1>
+                        <p className="text-sm text-gray-600">
+                            Access your saved films and continue your Ghibli
+                            journey.
+                        </p>
+                    </div>
+                </div>
+
+                <form onSubmit={submit} className="space-y-5">
+                    <div className="space-y-4">
                 <div>
                     <InputLabel htmlFor="email" value="Email" />
 
@@ -49,8 +66,18 @@ export default function Login({ status, canResetPassword }) {
                     <InputError message={errors.email} className="mt-2" />
                 </div>
 
-                <div className="mt-4">
+                        <div>
+                            <div className="flex items-center justify-between">
                     <InputLabel htmlFor="password" value="Password" />
+                                {canResetPassword && (
+                                    <Link
+                                        href={route('password.request')}
+                                        className="text-sm font-semibold text-sky-700 hover:text-emerald-600 focus:outline-none focus:ring-2 focus:ring-sky-200 focus:ring-offset-2"
+                                    >
+                                        Forgot password?
+                                    </Link>
+                                )}
+                            </div>
 
                     <TextInput
                         id="password"
@@ -63,45 +90,37 @@ export default function Login({ status, canResetPassword }) {
                     />
 
                     <InputError message={errors.password} className="mt-2" />
+                        </div>
                 </div>
 
-                <div className="mt-4 flex items-center justify-between">
-                    <label className="flex items-center">
+                    <div className="flex items-center justify-between rounded-xl bg-sky-50 px-4 py-3 ring-1 ring-sky-100">
+                        <label className="flex items-center gap-3">
                         <Checkbox
                             name="remember"
                             checked={data.remember}
-                            onChange={(e) =>
-                                setData('remember', e.target.checked)
-                            }
+                                onChange={(e) => setData('remember', e.target.checked)}
                         />
-                        <span className="ms-2 text-sm text-gray-600">
-                            Remember me
+                            <span className="text-sm text-gray-700">Remember me</span>
+                        </label>
+                        <span className="text-xs text-gray-500">
+                            Secure login enabled
                         </span>
-                    </label>
-
-                    {canResetPassword && (
-                        <Link
-                            href={route('password.request')}
-                            className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                        >
-                            Forgot your password?
-                        </Link>
-                    )}
                 </div>
 
-                <div className="mt-4 flex items-center justify-end">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                         <Link
                             href={route('register')}
-                            className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+                            className="inline-flex items-center justify-center rounded-lg border border-sky-100 px-4 py-2 text-sm font-semibold text-sky-700 transition hover:border-emerald-200 hover:bg-emerald-50 hover:text-emerald-700"
                         >
-                            Don't have an Account?
+                            New here? Create an account
                         </Link>
             
-                    <PrimaryButton className="ms-4" disabled={processing}>
+                        <PrimaryButton className="justify-center px-6" disabled={processing}>
                         Log in
                     </PrimaryButton>
                 </div>
             </form>
+            </div>
         </GuestLayout>
     );
 }
