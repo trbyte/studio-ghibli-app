@@ -585,7 +585,7 @@ export default function Landing() {
                   </div>
                   <div className="mt-3">
                     <a
-                      href="https://github.com/your-org/studio-ghibli-app"
+                      href="https://github.com/trbyte/studio-ghibli-app"
                       className="inline-flex items-center gap-2 rounded-full bg-yellow-500/10 px-3 py-1.5 text-xs font-semibold text-yellow-200 ring-1 ring-yellow-400/60 transition hover:bg-yellow-500/20"
                     >
                       <span className="material-symbols-outlined text-sm">open_in_new</span>

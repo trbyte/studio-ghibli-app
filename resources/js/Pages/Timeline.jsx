@@ -250,8 +250,10 @@ const TimelineSection = ({
   index,
   userList,
   setActiveImage,
+  setFallbackImage,
   setBackgroundOpacity,
   onWatchTrailer,
+  giphyMap,
 }) => {
   const ref = useRef(null);
 
@@ -261,31 +263,72 @@ const TimelineSection = ({
   const isInView = useInView(ref, { margin: "-40% 0px -40% 0px" });
   const isCentered = useInView(ref, { margin: "-50% 0px -50% 0px" });
   
-  // Calculate scroll progress for this section
+  // Calculate scroll progress for smooth fade-in
   const { scrollYProgress } = useScroll({
     target: containerRef,
-    offset: ["start center", "center start"]
+    offset: ["start end", "center center", "end start"]
   });
   
-  // Transform scroll progress to opacity (0 when far, 1 when centered)
-  const opacity = useTransform(
-    scrollYProgress,
-    [0, 0.5, 1],
-    [0, 0.5, 1]
-  );
+  // Get GIF URL or fallback to static image
+  const getBackgroundImage = () => {
+    // Try exact match first
+    let gifUrl = giphyMap[item.title];
+    
+    // If no exact match, try case-insensitive match
+    if (!gifUrl) {
+      const titleLower = item.title.toLowerCase();
+      for (const [key, value] of Object.entries(giphyMap)) {
+        if (key.toLowerCase() === titleLower && value) {
+          gifUrl = value;
+          break;
+        }
+      }
+    }
+    
+    if (gifUrl) {
+      return gifUrl;
+    }
+    // Fallback to static image
+    return item.movie_banner || item.image || "https://picsum.photos/1920/1080";
+  };
 
   useEffect(() => {
-    if (isCentered) {
-      setActiveImage(item.movie_banner || item.image);
-      setBackgroundOpacity(1);
-    } else if (isInView) {
-      // Gradually increase opacity as it approaches center
-      setActiveImage(item.movie_banner || item.image);
-      setBackgroundOpacity(0.3);
-    } else {
-      setBackgroundOpacity(0);
+    const backgroundImage = getBackgroundImage();
+    const staticFallback = item.movie_banner || item.image || "https://picsum.photos/1920/1080";
+    
+    // Set image when in view
+    if (isInView || isCentered) {
+      setActiveImage(backgroundImage);
+      setFallbackImage(staticFallback);
     }
-  }, [isInView, isCentered, item, setActiveImage, setBackgroundOpacity]);
+  }, [isInView, isCentered, item, setActiveImage, setFallbackImage, giphyMap]);
+
+  // Calculate opacity based on scroll progress with smooth fade-in
+  useEffect(() => {
+    if (!isInView && !isCentered) {
+      setBackgroundOpacity(0);
+      return;
+    }
+
+    const unsubscribe = scrollYProgress.on("change", (latest) => {
+      // Smooth fade-in: 0 when far, gradually increases, peaks at 1.0 when centered
+      // Using a smooth curve for natural fade-in effect
+      let calculatedOpacity = 0;
+      
+      if (latest <= 0.5) {
+        // Fading in as it approaches center
+        calculatedOpacity = latest * 2; // 0 to 1.0
+      } else {
+        // Fading out as it moves past center
+        calculatedOpacity = 2 - (latest * 2); // 1.0 to 0
+      }
+      
+      // Clamp between 0.1 and 1.0 for visibility
+      setBackgroundOpacity(Math.max(0.1, Math.min(1, calculatedOpacity)));
+    });
+    
+    return () => unsubscribe();
+  }, [scrollYProgress, isInView, isCentered, setBackgroundOpacity]);
 
   return (
     // Changed: flex-col justify-center centers vertical content, but allows w-full for horizontal flow
@@ -316,8 +359,36 @@ export default function Timeline({ userList = {} }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [activeImage, setActiveImage] = useState(null);
+  const [fallbackImage, setFallbackImage] = useState(null);
   const [backgroundOpacity, setBackgroundOpacity] = useState(0);
   const playlistId = "PLkukk61q9mY_ps9HKovftqotZiKb34BVt";
+  const GIPHY_API_KEY = "Zxohb5mVWXHaNJL3MH6qpqlosFq1C3Qw";
+
+  // Map film titles to Giphy GIF URLs
+  const giphyMap = {
+    "Castle in the Sky": "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExdHVzbnl6YjU2YXNwcmZ5MzV3MXhjNDhnNmdma2VoeHE0bzJ4ZGZybiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/b54zZ33PedJAY/giphy.gif",
+    "Grave of the Fireflies": "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExdjNsNzdtMXFqMDgyc3cya2Y4djZoazl3ZXhpMGttYWhzMHJ6bjFseiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/AKtV37treIorS/giphy.gif",
+    "My Neighbor Totoro": "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExazVueTYxeGluM3I5a21ybjlxNWphbTVlenI1dGE1N2V6bDUwdWEwOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xMkWcQ9xTGH8A/giphy.gif",
+    "Kiki's Delivery Service": "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExODd5d2kzbmdyZWpudHhocnVlaTh1bGxkY212YjAwN3M3ejdnbWZ1MyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/HLzvuV6rmpdeM/giphy.gif",
+    "Only Yesterday": null, // Use default pic
+    "Porco Rosso": "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExY3M4MWN1dG1zcHI2OGJqODJuOGM5bnB3dTU5aDJlemx2OGZiNTN4YyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/fwqAg6ZS6ebL2/giphy.gif",
+    "Pom Poko": "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExNnplbmV1Zm9jbXhxeWwwaGo5dDF4ZGM4a2FpbGkwNzJpcGE1Y3Y1NSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/L6TilUE7VN4QM/giphy.gif",
+    "Whisper of the Heart": "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExYTgydTN2Zjk5dzVuZTNqeno0Ym05dGZqMjZwdmFhaDVtNWNpcDdpbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/6XX4V0O8a0xdS/giphy.gif",
+    "Princess Mononoke": "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExem5kM2hpejE0emN4bXRvdXg3azlvcjA2cXlrNmFwcDJvc3ExYTJ3dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/8A7dN5xUW7AuSm8hEY/giphy.gif",
+    "My Neighbors the Yamadas": null, // Use default pic
+    "Spirited Away": "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExbjhxOWdpM2g2OXM3MjlscWozOWZ5ZXhraDVhZXp5d2VxYjU3ZnJqZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/MkuD2E3CJM9LG/giphy.gif",
+    "The Cat Returns": "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExNXFtZTR1ZHFnbGkwdGY2c3p5MnN0MHE5dDQybHh0OHE2YWx5NjR4dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/hS21PWdzgP02Y/giphy.gif",
+    "Howl's Moving Castle": "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExNjlyMDdiOW9reDdhejRwZWVodTViMm9hc3E5cW1qcGpkaGd4MjgzOSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/wUCgLRvDdtWs8/giphy.gif",
+    "Tales from Earthsea": null, // Use default pic
+    "Ponyo": "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHpmNWpjbDh4c3E5Z25uMnlwbzA3MG9td3BlMmI2YmdyaDNxODlhcSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/pQOeDr8mVwaHu/giphy.gif",
+    "The Secret World of Arrietty": "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExMmU1d2w0Z2dpdHNxaXE3enAxcmw5aHdsODdkbnhqM2syMm1nMmE4ZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3sjOADyw19Pa/giphy.gif",
+    "From Up on Poppy Hill": "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExdW1vcWxqaHg5N2NmOHY5dmR2OXpseW40ZzZycDdvdGc2ZTJ6eDdsZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/0mmGH15O5ivXnNec26/giphy.gif",
+    "The Wind Rises": "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3hwOGx5c2puM2t1aDZrd2l6dW4zejZ5OW81YmI5cnlmYXppZ2UzcCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/oHvHEKTgRgk6MeIZv5/giphy.gif",
+    "The Tale of the Princess Kaguya": "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExcHB5bjBwZ3kwaWJ4bDF6bmcwNXZoaDR4bWNsdjE0cXNnd3U1bHluayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/VKLruF5oChAR2/giphy.gif",
+    "When Marnie Was There": "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExaW5nemptZXY5a2F0bjMydzE4YnNxYml5cG0yYWVvc3A0cjkwZzVoYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ufvRifZxL1Svu/giphy.gif",
+    "The Red Turtle": null, // Use default pic
+    "Earwig and the Witch": null, // Use default pic
+  };
 
   // Map film titles from the Ghibli API to their index in the playlist:
   // https://www.youtube.com/watch?v=8ykEy-yPBFc&list=PLkukk61q9mY_ps9HKovftqotZiKb34BVt
@@ -389,8 +460,18 @@ export default function Timeline({ userList = {} }) {
         }));
 
         setTimeline(items);
-        // if (items.length > 0)
-        //   setActiveImage(items[0].movie_banner || items[0].image);
+        
+        // Set initial background image for first item
+        if (items.length > 0) {
+          const firstItem = items[0];
+          const firstGif = giphyMap[firstItem.title];
+          const initialImage = firstGif || firstItem.movie_banner || firstItem.image;
+          if (initialImage) {
+            setActiveImage(initialImage);
+            setFallbackImage(firstItem.movie_banner || firstItem.image);
+            setBackgroundOpacity(0.3);
+          }
+        }
       } catch (err) {
         if (mounted) setError(err.message || "Failed to fetch films");
       } finally {
@@ -429,22 +510,31 @@ export default function Timeline({ userList = {} }) {
       {/* Sticky, viewport-height background scoped to the timeline section */}
       <div className="pointer-events-none sticky top-0 h-screen z-0">
         <div className="relative w-full h-full">
-          <div className="absolute inset-0 bg-black/70 z-10" />
-          {/* Dark overlay for text readability */}
-          <AnimatePresence mode="popLayout">
-            {activeImage && (
-              <motion.img
-                key={activeImage}
-                src={activeImage}
-                alt="Background"
-                className="absolute inset-0 w-full h-full object-cover"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: backgroundOpacity }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 1.5, ease: "easeInOut" }}
-              />
-            )}
-          </AnimatePresence>
+          {activeImage && (
+            <motion.img
+              key={activeImage}
+              src={activeImage}
+              alt="Background"
+              className="absolute inset-0 w-full h-full object-cover"
+              style={{ zIndex: 1 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: backgroundOpacity }}
+              exit={{ opacity: 0 }}
+              transition={{ 
+                duration: 0.8, 
+                ease: [0.25, 0.1, 0.25, 1] // Smooth ease-in-out curve
+              }}
+              onError={(e) => {
+                // Fallback to static image if GIF fails to load
+                if (fallbackImage && e.target.src !== fallbackImage) {
+                  e.target.src = fallbackImage;
+                }
+              }}
+              loading="eager"
+            />
+          )}
+          <div className="absolute inset-0 bg-black/20" style={{ zIndex: 2 }} />
+          {/* Dark overlay for text readability - reduced opacity */}
         </div>
       </div>
 
@@ -494,8 +584,10 @@ export default function Timeline({ userList = {} }) {
               index={index}
               userList={userList}
               setActiveImage={setActiveImage}
+              setFallbackImage={setFallbackImage}
               setBackgroundOpacity={setBackgroundOpacity}
               onWatchTrailer={handleOpenTrailer}
+              giphyMap={giphyMap}
             />
           ))}
         </div>
