@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
+import { router } from "@inertiajs/react";
+import Modal from "../Components/Modal";
 import { motion, useInView, AnimatePresence, useScroll, useTransform } from "framer-motion";
 
 // --- Helper Functions ---
@@ -16,16 +18,27 @@ function formatRunningTime(value) {
 /*                            TIMELINE ITEM                           */
 /* ================================================================== */
 
-function TimelineItem({ item, isLeft, reverse, userList = {} }) {
+function TimelineItem({ item, isLeft, reverse, userList = {}, onWatchTrailer }) {
   const [showDetails, setShowDetails] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
   const handleActionClick = (actionKey) => {
     if (!item.id) return;
-    console.log(`Action: ${actionKey} on ${item.title}`);
-    // Simulate API call
-    setTimeout(() => setMenuOpen(false), 200);
+
+    // Send action to backend via Inertia
+    router.post(
+      "/film-actions",
+      {
+        film_id: item.id,
+        film_title: item.title,
+        action_type: actionKey,
+      },
+      {
+        preserveScroll: true,
+        onFinish: () => setMenuOpen(false),
+      }
+    );
   };
 
   useEffect(() => {
@@ -110,7 +123,6 @@ function TimelineItem({ item, isLeft, reverse, userList = {} }) {
           <>
             <button
               onMouseEnter={() => setShowDetails(true)}
-              onMouseLeave={() => setShowDetails(false)}
               className="px-5 py-2 bg-white text-black rounded-xl text-xs font-bold uppercase tracking-wider shadow hover:bg-yellow-400 transition"
             >
               Details
@@ -136,7 +148,6 @@ function TimelineItem({ item, isLeft, reverse, userList = {} }) {
 
             <button
               onMouseEnter={() => setShowDetails(true)}
-              onMouseLeave={() => setShowDetails(false)}
               className="px-5 py-2 bg-white text-black rounded-xl text-xs font-bold uppercase tracking-wider shadow hover:bg-yellow-400 transition"
             >
               Details
@@ -148,6 +159,8 @@ function TimelineItem({ item, isLeft, reverse, userList = {} }) {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
+            onMouseEnter={() => setShowDetails(true)}
+            onMouseLeave={() => setShowDetails(false)}
             className={`absolute ${detailsPopupPosition} top-14 w-72 bg-black/90 border border-white/20 backdrop-blur-xl rounded-xl shadow-2xl p-5 text-sm z-50 text-gray-200`}
           >
             <p className="mb-1">
@@ -166,10 +179,19 @@ function TimelineItem({ item, isLeft, reverse, userList = {} }) {
               <strong className="text-yellow-400">Running Time:</strong>{" "}
               {formatRunningTime(item.running_time)}
             </p>
-            <p>
+            <p className="mb-4">
               <strong className="text-yellow-400">Rating:</strong>{" "}
               {item.rt_score ?? "—"}
             </p>
+
+            <button
+              type="button"
+              onClick={() => onWatchTrailer && onWatchTrailer()}
+              className="mt-1 inline-flex items-center gap-2 rounded-full bg-yellow-400 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-black shadow-lg shadow-yellow-500/40 hover:bg-yellow-300 hover:shadow-yellow-400/70 transition"
+            >
+              <span className="material-symbols-outlined text-sm">play_arrow</span>
+              Watch Trailer
+            </button>
           </motion.div>
         )}
 
@@ -223,7 +245,14 @@ function TimelineItem({ item, isLeft, reverse, userList = {} }) {
 
 // --- Viewport Wrapper for Items ---
 //
-const TimelineSection = ({ item, index, userList, setActiveImage, setBackgroundOpacity }) => {
+const TimelineSection = ({
+  item,
+  index,
+  userList,
+  setActiveImage,
+  setBackgroundOpacity,
+  onWatchTrailer,
+}) => {
   const ref = useRef(null);
 
   const containerRef = useRef(null);
@@ -271,6 +300,9 @@ const TimelineSection = ({ item, index, userList, setActiveImage, setBackgroundO
           isLeft={index % 2 === 0}
           reverse={index % 2 === 1}
           userList={userList}
+          onWatchTrailer={
+            onWatchTrailer ? () => onWatchTrailer(item, index) : undefined
+          }
         />
       </div>
     </div>
@@ -285,6 +317,46 @@ export default function Timeline({ userList = {} }) {
   const [error, setError] = useState(null);
   const [activeImage, setActiveImage] = useState(null);
   const [backgroundOpacity, setBackgroundOpacity] = useState(0);
+  const playlistId = "PLkukk61q9mY_ps9HKovftqotZiKb34BVt";
+
+  // Map film titles from the Ghibli API to their index in the playlist:
+  // https://www.youtube.com/watch?v=8ykEy-yPBFc&list=PLkukk61q9mY_ps9HKovftqotZiKb34BVt
+  // Index is 0-based and follows the visible order you provided.
+  const trailerIndexMap = {
+    "Castle in the Sky": 0,              // Laputa: Castle in the Sky
+    "Grave of the Fireflies": 1,
+    "My Neighbor Totoro": 2,
+    "Kiki's Delivery Service": 3,
+    "Only Yesterday": 4,
+    "Porco Rosso": 5,
+    "Pom Poko": 6,
+    "Whisper of the Heart": 7,
+    "Princess Mononoke": 8,
+    "My Neighbors the Yamadas": 9,
+    "Spirited Away": 10,
+    "The Cat Returns": 11,
+    "Howl's Moving Castle": 12,
+    "Tales from Earthsea": 13,
+    "Ponyo": 14,
+    "The Secret World of Arrietty": 15,  // Arrietty
+    "From Up on Poppy Hill": 16,
+  };
+
+  const [trailerIndex, setTrailerIndex] = useState(null);
+
+  const handleOpenTrailer = (movie, fallbackIndex) => {
+    const mappedIndex = trailerIndexMap[movie.title];
+
+    if (typeof mappedIndex === "number") {
+      setTrailerIndex(mappedIndex);
+    } else if (typeof fallbackIndex === "number") {
+      // Fallback: use the timeline index if no explicit mapping yet
+      setTrailerIndex(fallbackIndex);
+    } else {
+      // If nothing is mapped, do nothing (or you could open a search page instead)
+      console.warn("No trailer mapping for:", movie.title);
+    }
+  };
 
   useEffect(() => {
     let mounted = true;
@@ -423,6 +495,7 @@ export default function Timeline({ userList = {} }) {
               userList={userList}
               setActiveImage={setActiveImage}
               setBackgroundOpacity={setBackgroundOpacity}
+              onWatchTrailer={handleOpenTrailer}
             />
           ))}
         </div>
@@ -430,6 +503,46 @@ export default function Timeline({ userList = {} }) {
 
       {/* Footer spacing */}
       <div className="h-[20vh] relative z-10" />
+
+      {/* Trailer Modal with playlist embed */}
+      <Modal
+        show={trailerIndex !== null}
+        onClose={() => setTrailerIndex(null)}
+        maxWidth="2xl"
+      >
+        <div className="bg-black">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
+            <h3 className="text-sm font-semibold text-white">
+              Trailer:{" "}
+              {trailerIndex !== null && timeline[trailerIndex]
+                ? timeline[trailerIndex].title
+                : ""}
+            </h3>
+            <button
+              type="button"
+              onClick={() => setTrailerIndex(null)}
+              className="text-slate-400 hover:text-slate-200 transition"
+            >
+              <span className="material-symbols-outlined text-base">close</span>
+            </button>
+          </div>
+          <div className="relative w-full aspect-video bg-black">
+            {trailerIndex !== null && (
+              <iframe
+                title={
+                  trailerIndex !== null && timeline[trailerIndex]
+                    ? `Trailer for ${timeline[trailerIndex].title}`
+                    : "Trailer"
+                }
+                className="w-full h-full"
+                src={`https://www.youtube.com/embed?autoplay=1&rel=0&modestbranding=1&listType=playlist&list=${playlistId}&index=${trailerIndex + 1}`}
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen
+              />
+            )}
+          </div>
+        </div>
+      </Modal>
     </section>
   );
 }
