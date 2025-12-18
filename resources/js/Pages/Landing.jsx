@@ -79,7 +79,6 @@ function UserMenu({ authUser }) {
 function Sidebar({ open, setOpen, userList }) {
   const [editingMovie, setEditingMovie] = React.useState(null);
   const [notes, setNotes] = React.useState("");
-  const [movieNotes, setMovieNotes] = React.useState({});
   const [moviesMap, setMoviesMap] = React.useState({});
 
   // Fetch movie data to get images
@@ -119,17 +118,25 @@ function Sidebar({ open, setOpen, userList }) {
 
   const handleEditClick = (movie) => {
     setEditingMovie(movie);
-    setNotes(movieNotes[movie.id] || "");
+    // Load existing note from the movie object
+    setNotes(movie.note || "");
   };
 
   const handleSaveNotes = () => {
     if (editingMovie) {
-      setMovieNotes(prev => ({
-        ...prev,
-        [editingMovie.id]: notes
-      }));
-      setEditingMovie(null);
-      setNotes("");
+      // Send PATCH request to backend to save the note
+      router.patch(`/film-actions/${editingMovie.id}`, {
+        note: notes,
+      }, {
+        preserveScroll: true,
+        onSuccess: () => {
+          setEditingMovie(null);
+          setNotes("");
+        },
+        onError: (errors) => {
+          console.error('Failed to save note:', errors);
+        }
+      });
     }
   };
 
@@ -191,7 +198,7 @@ function Sidebar({ open, setOpen, userList }) {
                 {items.length > 0 ? (
                   <ul className="mt-3 space-y-2">
                     {items.map((movie) => {
-                      const movieData = moviesMap[movie.id] || movie;
+                      const movieData = moviesMap[movie.film_id] || movie;
                       const hasImage = movieData.image || movieData.movie_banner;
                       
                       return (
@@ -248,7 +255,7 @@ function Sidebar({ open, setOpen, userList }) {
         <div className="p-6">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-xl font-semibold text-white">
-              Edit Notes: {editingMovie?.title}
+              Notes: {editingMovie?.title}
             </h3>
             <button
               onClick={handleCloseModal}

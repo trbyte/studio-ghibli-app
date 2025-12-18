@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { router } from "@inertiajs/react";
 import Modal from "../Components/Modal";
 import { motion, useInView, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import { router } from "@inertiajs/react";
 
 // --- Helper Functions ---
 function formatRunningTime(value) {
@@ -25,20 +26,20 @@ function TimelineItem({ item, isLeft, reverse, userList = {}, onWatchTrailer }) 
 
   const handleActionClick = (actionKey) => {
     if (!item.id) return;
-
-    // Send action to backend via Inertia
-    router.post(
-      "/film-actions",
-      {
-        film_id: item.id,
-        film_title: item.title,
-        action_type: actionKey,
+    
+    // Send action to backend
+    router.post('/film-actions', {
+      film_id: item.id,
+      action_type: actionKey,
+    }, {
+      preserveScroll: true,
+      onSuccess: () => {
+        setMenuOpen(false);
       },
-      {
-        preserveScroll: true,
-        onFinish: () => setMenuOpen(false),
+      onError: (errors) => {
+        console.error('Failed to save action:', errors);
       }
-    );
+    });
   };
 
   useEffect(() => {
@@ -201,7 +202,7 @@ function TimelineItem({ item, isLeft, reverse, userList = {}, onWatchTrailer }) 
           >
             {actions.map((action) => {
               const isActive = userList[action.key]?.some(
-                (film) => film.id === item.id
+                (film) => film.film_id === item.id
               );
               return (
                 <div
