@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { motion, useInView, AnimatePresence, useScroll, useTransform } from "framer-motion";
+import { router } from "@inertiajs/react";
 
 // --- Helper Functions ---
 function formatRunningTime(value) {
@@ -23,9 +24,20 @@ function TimelineItem({ item, isLeft, reverse, userList = {} }) {
 
   const handleActionClick = (actionKey) => {
     if (!item.id) return;
-    console.log(`Action: ${actionKey} on ${item.title}`);
-    // Simulate API call
-    setTimeout(() => setMenuOpen(false), 200);
+    
+    // Send action to backend
+    router.post('/film-actions', {
+      film_id: item.id,
+      action_type: actionKey,
+    }, {
+      preserveScroll: true,
+      onSuccess: () => {
+        setMenuOpen(false);
+      },
+      onError: (errors) => {
+        console.error('Failed to save action:', errors);
+      }
+    });
   };
 
   useEffect(() => {
@@ -179,7 +191,7 @@ function TimelineItem({ item, isLeft, reverse, userList = {} }) {
           >
             {actions.map((action) => {
               const isActive = userList[action.key]?.some(
-                (film) => film.id === item.id
+                (film) => film.film_id === item.id
               );
               return (
                 <div

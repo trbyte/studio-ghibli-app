@@ -51,8 +51,10 @@ class HandleInertiaRequests extends Middleware
                     return $items->map(function ($item) use ($filmsMap) {
                         $film = $filmsMap->get($item->film_id);
                         return [
-                            'id' => $item->film_id,
+                            'id' => $item->id,  // film_action.id (database record ID)
+                            'film_id' => $item->film_id,  // Ghibli API film ID
                             'title' => $film['title'] ?? 'Unknown Film',
+                            'note' => $item->note,  // User's personal note
                         ];
                     })->values()->toArray();
                 });
