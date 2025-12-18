@@ -414,18 +414,18 @@ export default function Timeline({ userList = {} }) {
   };
 
   const [trailerIndex, setTrailerIndex] = useState(null);
+  const [trailerMovie, setTrailerMovie] = useState(null);
 
   const handleOpenTrailer = (movie, fallbackIndex) => {
     const mappedIndex = trailerIndexMap[movie.title];
 
     if (typeof mappedIndex === "number") {
       setTrailerIndex(mappedIndex);
-    } else if (typeof fallbackIndex === "number") {
-      // Fallback: use the timeline index if no explicit mapping yet
-      setTrailerIndex(fallbackIndex);
+      setTrailerMovie(movie);
     } else {
-      // If nothing is mapped, do nothing (or you could open a search page instead)
-      console.warn("No trailer mapping for:", movie.title);
+      // No trailer available - show message
+      setTrailerIndex(-1); // Use -1 to indicate no trailer
+      setTrailerMovie(movie);
     }
   };
 
@@ -599,39 +599,52 @@ export default function Timeline({ userList = {} }) {
       {/* Trailer Modal with playlist embed */}
       <Modal
         show={trailerIndex !== null}
-        onClose={() => setTrailerIndex(null)}
+        onClose={() => {
+          setTrailerIndex(null);
+          setTrailerMovie(null);
+        }}
         maxWidth="2xl"
       >
         <div className="bg-black">
           <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
             <h3 className="text-sm font-semibold text-white">
-              Trailer:{" "}
-              {trailerIndex !== null && timeline[trailerIndex]
-                ? timeline[trailerIndex].title
-                : ""}
+              Trailer: {trailerMovie?.title || ""}
             </h3>
             <button
               type="button"
-              onClick={() => setTrailerIndex(null)}
+              onClick={() => {
+                setTrailerIndex(null);
+                setTrailerMovie(null);
+              }}
               className="text-slate-400 hover:text-slate-200 transition"
             >
               <span className="material-symbols-outlined text-base">close</span>
             </button>
           </div>
           <div className="relative w-full aspect-video bg-black">
-            {trailerIndex !== null && (
+            {trailerIndex === -1 ? (
+              // No trailer available
+              <div className="flex flex-col items-center justify-center h-full text-center px-6">
+                <span className="material-symbols-outlined text-6xl text-slate-500 mb-4">
+                  movie
+                </span>
+                <p className="text-xl font-semibold text-slate-300 mb-2">
+                  No Trailer Available
+                </p>
+                <p className="text-sm text-slate-500">
+                  A trailer for this film is not currently available in our collection.
+                </p>
+              </div>
+            ) : trailerIndex !== null && trailerIndex >= 0 ? (
+              // Trailer available - show iframe
               <iframe
-                title={
-                  trailerIndex !== null && timeline[trailerIndex]
-                    ? `Trailer for ${timeline[trailerIndex].title}`
-                    : "Trailer"
-                }
+                title={trailerMovie ? `Trailer for ${trailerMovie.title}` : "Trailer"}
                 className="w-full h-full"
                 src={`https://www.youtube.com/embed?autoplay=1&rel=0&modestbranding=1&listType=playlist&list=${playlistId}&index=${trailerIndex + 1}`}
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 allowFullScreen
               />
-            )}
+            ) : null}
           </div>
         </div>
       </Modal>
