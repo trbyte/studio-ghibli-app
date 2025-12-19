@@ -3,8 +3,26 @@ import React, { useEffect, useState } from 'react';
 export const CustomCursor = () => {
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
 
+  // Check screen size on mount and resize
   useEffect(() => {
+    const checkScreenSize = () => {
+      setIsDesktop(window.innerWidth >= 1024);
+    };
+
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+
+    return () => {
+      window.removeEventListener('resize', checkScreenSize);
+    };
+  }, []);
+
+  // Set up cursor only on desktop
+  useEffect(() => {
+    if (!isDesktop) return;
+
     const updateCursor = (e) => {
       setPosition({ x: e.clientX, y: e.clientY });
     };
@@ -75,7 +93,12 @@ export const CustomCursor = () => {
       document.removeEventListener('mouseenter', handleMouseEnter, true);
       document.removeEventListener('mouseleave', handleMouseLeave, true);
     };
-  }, []);
+  }, [isDesktop]);
+
+  // Don't render cursor on mobile/tablet
+  if (!isDesktop) {
+    return null;
+  }
 
   return (
     <>

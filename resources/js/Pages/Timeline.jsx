@@ -34,6 +34,7 @@ function TimelineItem({ item, isLeft, reverse, userList = {}, onWatchTrailer }) 
       preserveScroll: true,
       onSuccess: () => {
         setMenuOpen(false);
+        // The userList will be automatically refreshed via Inertia's shared props
       },
       onError: (errors) => {
         console.error('Failed to save action:', errors);
@@ -59,16 +60,16 @@ function TimelineItem({ item, isLeft, reverse, userList = {}, onWatchTrailer }) 
     { key: "finished", label: "Finished", icon: "check_circle" },
   ];
 
-  // Layout classes
+  // Layout classes - responsive spacing
   const buttonRowClass = isLeft
-    ? "flex items-center mt-3 space-x-4 relative"
-    : "flex items-center mt-3 space-x-4 relative justify-end";
+    ? "flex items-center mt-2 md:mt-3 space-x-2 md:space-x-4 relative"
+    : "flex items-center mt-2 md:mt-3 space-x-2 md:space-x-4 relative justify-end";
 
-  const detailsPopupPosition = isLeft ? "-left-4" : "right-0";
+  const detailsPopupPosition = isLeft ? "-left-2 md:-left-4" : "right-0";
 
   const menuPosition = isLeft
-    ? "left-[85px]"
-    : "right-[100px] flex flex-col items-end";
+    ? "left-[60px] md:left-[85px]"
+    : "right-[60px] md:right-[100px] flex flex-col items-end";
 
   // Dot positioning on the spine
   const dotClass = isLeft
@@ -77,7 +78,7 @@ function TimelineItem({ item, isLeft, reverse, userList = {}, onWatchTrailer }) 
 
   return (
     <motion.div
-      className={`relative w-1/2 py-6 ${isLeft ? "pr-8" : "pl-8 ml-auto"}`}
+      className={`relative w-1/2 py-3 md:py-6 ${isLeft ? "pr-4 md:pr-8" : "pl-4 md:pl-8 ml-auto"}`}
       initial={{ opacity: 0, y: -80 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: false, margin: "-20%" }}
@@ -85,34 +86,34 @@ function TimelineItem({ item, isLeft, reverse, userList = {}, onWatchTrailer }) 
     >
       {/* Dot marker on the spine */}
       <div
-        className={`absolute top-1/2 -translate-y-1/2 w-4 h-4 bg-yellow-400 rounded-full border-2 border-black z-20 ${dotClass}`}
+        className={`absolute top-1/2 -translate-y-1/2 w-3 h-3 md:w-4 md:h-4 bg-yellow-400 rounded-full border-2 border-black z-20 ${dotClass}`}
       />
 
       {/* Panel box - Glassmorphism style */}
-      <div className="p-6 border border-white/20 rounded-xl bg-black/40 shadow-2xl text-white transform-gpu transition-all duration-500 hover:border-yellow-400/60 hover:shadow-[0_0_40px_rgba(250,204,21,0.45)] hover:-translate-y-1">
+      <div className="p-3 md:p-6 border border-white/20 rounded-lg md:rounded-xl bg-black/40 shadow-2xl text-white transform-gpu transition-all duration-500 hover:border-yellow-400/60 hover:shadow-[0_0_40px_rgba(250,204,21,0.45)] hover:-translate-y-1">
         {reverse ? (
-          <div className="flex justify-between items-baseline">
-            <span className="text-sm font-mono text-yellow-400">
+          <div className="flex justify-between items-baseline gap-2">
+            <span className="text-[10px] md:text-sm font-mono text-yellow-400">
               {item.release_date}
             </span>
-            <h3 className="font-semibold text-2xl font-space tracking-tight">
+            <h3 className="font-semibold text-base md:text-2xl font-space tracking-tight">
               {item.title}
             </h3>
           </div>
         ) : (
-          <div className="flex justify-between items-baseline">
-            <h3 className="font-semibold text-2xl font-space tracking-tight">
+          <div className="flex justify-between items-baseline gap-2">
+            <h3 className="font-semibold text-base md:text-2xl font-space tracking-tight">
               {item.title}
             </h3>
-            <span className="text-sm font-mono text-yellow-400">
+            <span className="text-[10px] md:text-sm font-mono text-yellow-400">
               {item.release_date}
             </span>
           </div>
         )}
 
-        <hr className="border-t border-white/20 border-dashed my-4" />
+        <hr className="border-t border-white/20 border-dashed my-2 md:my-4" />
 
-        <p className="text-sm text-gray-300 leading-relaxed">
+        <p className="text-[11px] md:text-sm text-gray-300 leading-relaxed">
           {item.description}
         </p>
       </div>
@@ -123,16 +124,17 @@ function TimelineItem({ item, isLeft, reverse, userList = {}, onWatchTrailer }) 
           <>
             <button
               onMouseEnter={() => setShowDetails(true)}
-              className="px-5 py-2 bg-white text-black rounded-xl text-xs font-bold uppercase tracking-wider shadow hover:bg-yellow-400 transition"
+              onTouchStart={() => setShowDetails(true)}
+              className="px-3 md:px-5 py-1.5 md:py-2 bg-white text-black rounded-lg md:rounded-xl text-[10px] md:text-xs font-bold uppercase tracking-wider shadow hover:bg-yellow-400 transition"
             >
               Details
             </button>
 
             <button
               onClick={() => setMenuOpen((prev) => !prev)}
-              className="w-10 h-10 bg-white/10 border border-white/20 text-white rounded-full flex items-center justify-center shadow hover:bg-white hover:text-black transition"
+              className="w-8 h-8 md:w-10 md:h-10 bg-white/10 border border-white/20 text-white rounded-full flex items-center justify-center shadow hover:bg-white hover:text-black transition"
             >
-              <span className="material-symbols-outlined text-xl">add</span>
+              <span className="material-symbols-outlined text-base md:text-xl">add</span>
             </button>
           </>
         )}
@@ -141,14 +143,15 @@ function TimelineItem({ item, isLeft, reverse, userList = {}, onWatchTrailer }) 
           <>
             <button
               onClick={() => setMenuOpen((prev) => !prev)}
-              className="w-10 h-10 bg-white/10 border border-white/20 text-white rounded-full flex items-center justify-center shadow hover:bg-white hover:text-black transition"
+              className="w-8 h-8 md:w-10 md:h-10 bg-white/10 border border-white/20 text-white rounded-full flex items-center justify-center shadow hover:bg-white hover:text-black transition"
             >
-              <span className="material-symbols-outlined text-xl">add</span>
+              <span className="material-symbols-outlined text-base md:text-xl">add</span>
             </button>
 
             <button
               onMouseEnter={() => setShowDetails(true)}
-              className="px-5 py-2 bg-white text-black rounded-xl text-xs font-bold uppercase tracking-wider shadow hover:bg-yellow-400 transition"
+              onTouchStart={() => setShowDetails(true)}
+              className="px-3 md:px-5 py-1.5 md:py-2 bg-white text-black rounded-lg md:rounded-xl text-[10px] md:text-xs font-bold uppercase tracking-wider shadow hover:bg-yellow-400 transition"
             >
               Details
             </button>
@@ -161,7 +164,7 @@ function TimelineItem({ item, isLeft, reverse, userList = {}, onWatchTrailer }) 
             animate={{ opacity: 1, y: 0 }}
             onMouseEnter={() => setShowDetails(true)}
             onMouseLeave={() => setShowDetails(false)}
-            className={`absolute ${detailsPopupPosition} top-14 w-72 bg-black/90 border border-white/20 backdrop-blur-xl rounded-xl shadow-2xl p-5 text-sm z-50 text-gray-200`}
+            className={`absolute ${detailsPopupPosition} top-12 md:top-14 w-[calc(100vw-2rem)] max-w-[280px] md:w-72 bg-black/90 border border-white/20 backdrop-blur-xl rounded-lg md:rounded-xl shadow-2xl p-3 md:p-5 text-[11px] md:text-sm z-50 text-gray-200`}
           >
             <p className="mb-1">
               <strong className="text-yellow-400">Original Title:</strong>{" "}
@@ -179,7 +182,7 @@ function TimelineItem({ item, isLeft, reverse, userList = {}, onWatchTrailer }) 
               <strong className="text-yellow-400">Running Time:</strong>{" "}
               {formatRunningTime(item.running_time)}
             </p>
-            <p className="mb-4">
+            <p className="mb-3 md:mb-4">
               <strong className="text-yellow-400">Rating:</strong>{" "}
               {item.rt_score ?? "—"}
             </p>
@@ -187,9 +190,9 @@ function TimelineItem({ item, isLeft, reverse, userList = {}, onWatchTrailer }) 
             <button
               type="button"
               onClick={() => onWatchTrailer && onWatchTrailer()}
-              className="mt-1 inline-flex items-center gap-2 rounded-full bg-yellow-400 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-black shadow-lg shadow-yellow-500/40 hover:bg-yellow-300 hover:shadow-yellow-400/70 transition"
+              className="mt-1 w-full md:w-auto inline-flex items-center justify-center gap-2 rounded-full bg-yellow-400 px-3 md:px-4 py-1.5 md:py-2 text-[10px] md:text-[11px] font-semibold uppercase tracking-[0.18em] text-black shadow-lg shadow-yellow-500/40 hover:bg-yellow-300 hover:shadow-yellow-400/70 transition"
             >
-              <span className="material-symbols-outlined text-sm">play_arrow</span>
+              <span className="material-symbols-outlined text-xs md:text-sm">play_arrow</span>
               Watch Trailer
             </button>
           </motion.div>
@@ -197,7 +200,7 @@ function TimelineItem({ item, isLeft, reverse, userList = {}, onWatchTrailer }) 
 
         {menuOpen && (
           <div
-            className={`absolute ${menuPosition} top-14 space-y-2 z-50 w-48`}
+            className={`absolute ${menuPosition} top-12 md:top-14 space-y-1.5 md:space-y-2 z-50 w-[calc(100vw-2rem)] max-w-[180px] md:w-48`}
           >
             {actions.map((action) => {
               const isActive = userList[action.key]?.some(
@@ -212,20 +215,20 @@ function TimelineItem({ item, isLeft, reverse, userList = {}, onWatchTrailer }) 
                 >
                   <button
                     onClick={() => handleActionClick(action.key)}
-                    className={`w-9 h-9 border rounded-full flex items-center justify-center shadow transition ${
+                    className={`w-7 h-7 md:w-9 md:h-9 border rounded-full flex items-center justify-center shadow transition ${
                       isActive
                         ? "bg-yellow-400 border-yellow-500 text-black"
                         : "bg-black/80 border-white/30 text-white group-hover:bg-white group-hover:text-black"
                     }`}
                   >
-                    <span className="material-symbols-outlined text-lg">
+                    <span className="material-symbols-outlined text-sm md:text-lg">
                       {action.icon}
                     </span>
                   </button>
 
                   <button
                     onClick={() => handleActionClick(action.key)}
-                    className={`px-4 py-2 rounded-full border shadow text-xs font-bold uppercase transition ${
+                    className={`px-3 md:px-4 py-1.5 md:py-2 rounded-full border shadow text-[10px] md:text-xs font-bold uppercase transition ${
                       isActive
                         ? "bg-yellow-400 border-yellow-500 text-black"
                         : "bg-black/80 border-white/30 text-white group-hover:bg-white group-hover:text-black"
@@ -335,7 +338,7 @@ const TimelineSection = ({
     <div
       id={`timeline-movie-${item.id}`}
       ref={containerRef}
-      className="min-h-screen w-full flex flex-col justify-center relative py-20 snap-center"
+      className="min-h-[60vh] md:min-h-screen w-full flex flex-col justify-center relative py-8 md:py-20 snap-center"
     >
       <div ref={ref}>
         <TimelineItem
@@ -539,38 +542,38 @@ export default function Timeline({ userList = {} }) {
       </div>
 
       {/* Content Layer */}
-      <div className="relative z-10 w-full max-w-5xl mx-auto -mt-80">
+      <div className="relative z-10 w-full max-w-5xl mx-auto -mt-40 md:-mt-80">
         {/* Timeline Heading */}
         <motion.div
-          className="relative px-6 pb-20 text-center"
+          className="relative px-4 md:px-6 pb-8 md:pb-20 text-center"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.4 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
           <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute -top-10 left-10 h-24 w-24 rounded-full bg-yellow-500/20 blur-3xl" />
-            <div className="absolute bottom-0 right-16 h-24 w-24 rounded-full bg-yellow-400/20 blur-3xl" />
+            <div className="absolute -top-10 left-4 md:left-10 h-16 w-16 md:h-24 md:w-24 rounded-full bg-yellow-500/20 blur-3xl" />
+            <div className="absolute bottom-0 right-4 md:right-16 h-16 w-16 md:h-24 md:w-24 rounded-full bg-yellow-400/20 blur-3xl" />
           </div>
 
-          <div className="relative mx-auto max-w-5xl space-y-4">
-            <div className="inline-flex items-center gap-2 rounded-full bg-yellow-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-yellow-300 ring-1 ring-yellow-400/40">
+          <div className="relative mx-auto max-w-5xl space-y-2 md:space-y-4">
+            <div className="inline-flex items-center gap-1.5 md:gap-2 rounded-full bg-yellow-500/10 px-3 md:px-4 py-1 md:py-2 text-[10px] md:text-xs font-semibold uppercase tracking-[0.24em] text-yellow-300 ring-1 ring-yellow-400/40">
               Timeline
             </div>
-            <h2 className="text-3xl font-semibold text-white">
+            <h2 className="text-xl md:text-3xl font-semibold text-white px-4">
               Journey through every film
             </h2>
-            <p className="mx-auto max-w-3xl text-base text-slate-300">
+            <p className="mx-auto max-w-3xl text-xs md:text-base text-slate-300 px-4">
               Follow release order, relive iconic scenes, and discover hidden gems across the Studio Ghibli collection. Your personal progress is tracked in one place.
             </p>
           </div>
         </motion.div>
 
         {/* Timeline Container with Line */}
-        <div className="relative">
+        <div className="relative px-4 md:px-0">
           {/* Timeline Line (Spine) */}
           <motion.div
-            className="absolute left-1/2 top-0 h-full w-px bg-white/30 -translate-x-1/2"
+            className="absolute left-1/2 top-0 h-full w-0.5 md:w-px bg-white/30 -translate-x-1/2"
             initial={{ height: 0 }}
             animate={{ height: "100%" }}
             transition={{ duration: 1.5, ease: "easeOut" }}
@@ -594,7 +597,7 @@ export default function Timeline({ userList = {} }) {
       </div>
 
       {/* Footer spacing */}
-      <div className="h-[20vh] relative z-10" />
+      <div className="h-[10vh] md:h-[20vh] relative z-10" />
 
       {/* Trailer Modal with playlist embed */}
       <Modal
@@ -606,8 +609,8 @@ export default function Timeline({ userList = {} }) {
         maxWidth="2xl"
       >
         <div className="bg-black">
-          <div className="flex items-center justify-between px-4 py-3 border-b border-slate-800">
-            <h3 className="text-sm font-semibold text-white">
+          <div className="flex items-center justify-between px-3 md:px-4 py-2 md:py-3 border-b border-slate-800">
+            <h3 className="text-xs md:text-sm font-semibold text-white truncate pr-2">
               Trailer: {trailerMovie?.title || ""}
             </h3>
             <button
@@ -616,7 +619,7 @@ export default function Timeline({ userList = {} }) {
                 setTrailerIndex(null);
                 setTrailerMovie(null);
               }}
-              className="text-slate-400 hover:text-slate-200 transition"
+              className="text-slate-400 hover:text-slate-200 transition flex-shrink-0"
             >
               <span className="material-symbols-outlined text-base">close</span>
             </button>
@@ -624,14 +627,14 @@ export default function Timeline({ userList = {} }) {
           <div className="relative w-full aspect-video bg-black">
             {trailerIndex === -1 ? (
               // No trailer available
-              <div className="flex flex-col items-center justify-center h-full text-center px-6">
-                <span className="material-symbols-outlined text-6xl text-slate-500 mb-4">
+              <div className="flex flex-col items-center justify-center h-full text-center px-4 md:px-6">
+                <span className="material-symbols-outlined text-4xl md:text-6xl text-slate-500 mb-3 md:mb-4">
                   movie
                 </span>
-                <p className="text-xl font-semibold text-slate-300 mb-2">
+                <p className="text-lg md:text-xl font-semibold text-slate-300 mb-2">
                   No Trailer Available
                 </p>
-                <p className="text-sm text-slate-500">
+                <p className="text-xs md:text-sm text-slate-500">
                   A trailer for this film is not currently available in our collection.
                 </p>
               </div>

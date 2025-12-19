@@ -14,6 +14,11 @@ class FilmActionController extends Controller
 {
     /**
      * Store or update a film action for the authenticated user.
+     * 
+     * Toggle rules:
+     * - "favorite" and "plan" can be active simultaneously
+     * - "on_hold", "dropped", and "finished" are mutually exclusive (only one can be active)
+     * - Status actions (on_hold, dropped, finished) can coexist with favorite/plan
      */
     public function store(Request $request)
     {
@@ -22,16 +27,38 @@ class FilmActionController extends Controller
             'action_type' => 'required|in:favorite,plan,on_hold,dropped,finished',
         ]);
 
-        // Create or update the film action
-        FilmAction::updateOrCreate(
-            [
-                'user_id' => Auth::id(),
-                'film_id' => $request->film_id,
-            ],
-            [
-                'action_type' => $request->action_type,
-            ]
-        );
+        $userId = Auth::id();
+        $filmId = $request->film_id;
+        $actionType = $request->action_type;
+
+        // Status actions that are mutually exclusive
+        $statusActions = ['on_hold', 'dropped', 'finished'];
+        
+        // Check if this specific action already exists
+        $existingAction = FilmAction::where('user_id', $userId)
+            ->where('film_id', $filmId)
+            ->where('action_type', $actionType)
+            ->first();
+
+        if ($existingAction) {
+            // Toggle: Remove the action if it's already set
+            $existingAction->delete();
+        } else {
+            // If clicking a status action, remove any other status actions first
+            if (in_array($actionType, $statusActions)) {
+                FilmAction::where('user_id', $userId)
+                    ->where('film_id', $filmId)
+                    ->whereIn('action_type', $statusActions)
+                    ->delete();
+            }
+            
+            // Create the new action
+            FilmAction::create([
+                'user_id' => $userId,
+                'film_id' => $filmId,
+                'action_type' => $actionType,
+            ]);
+        }
 
         return redirect()->back();
     }

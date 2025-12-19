@@ -49,9 +49,9 @@ function UserMenu({ authUser }) {
     <div ref={menuRef} className="relative inline-block text-left">
       <button
         onClick={() => setOpen(!open)}
-        className="group inline-flex h-11 w-11 items-center justify-center rounded-full bg-slate-800/80 text-yellow-400 shadow-lg shadow-black/40 ring-1 ring-yellow-400/30 backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-slate-700/80 hover:text-yellow-300 hover:ring-yellow-400/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400/50"
+        className="group inline-flex h-9 w-9 md:h-11 md:w-11 items-center justify-center rounded-full bg-slate-800/80 text-yellow-400 shadow-lg shadow-black/40 ring-1 ring-yellow-400/30 backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-slate-700/80 hover:text-yellow-300 hover:ring-yellow-400/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400/50"
       >
-        <span className="material-symbols-outlined text-3xl transition group-hover:scale-105">
+        <span className="material-symbols-outlined text-2xl md:text-3xl transition group-hover:scale-105">
           account_circle
         </span>
       </button>
@@ -372,25 +372,25 @@ export default function Landing() {
       <CustomCursor />
       {/* NAVBAR */}
       <nav
-        className="fixed top-0 left-0 w-full flex justify-between items-center px-6 py-3 bg-slate-950/40 backdrop-blur-md z-50"
+        className="fixed top-0 left-0 w-full flex justify-between items-center px-3 md:px-6 py-2 md:py-3 bg-slate-950/40 backdrop-blur-md z-50"
       >
         <button
           type="button"
           onClick={() => {
             window.location.href = "/#hero";
           }}
-          className="text-xl font-bold text-yellow-400 transition hover:text-yellow-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-300 rounded"
+          className="text-base md:text-xl font-bold text-yellow-400 transition hover:text-yellow-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-300 rounded"
         >
           Ghibli Filmography
         </button>
 
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2 md:space-x-3">
           {authUser && (
             <button
               onClick={() => setSidebarOpen(true)}
-              className="group inline-flex h-11 w-11 items-center justify-center rounded-full bg-slate-800/80 text-yellow-400 shadow-lg shadow-black/40 ring-1 ring-yellow-400/30 backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-slate-700/80 hover:text-yellow-300 hover:ring-yellow-400/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400/50"
+              className="group inline-flex h-9 w-9 md:h-11 md:w-11 items-center justify-center rounded-full bg-slate-800/80 text-yellow-400 shadow-lg shadow-black/40 ring-1 ring-yellow-400/30 backdrop-blur-sm transition hover:-translate-y-0.5 hover:bg-slate-700/80 hover:text-yellow-300 hover:ring-yellow-400/50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-400/50"
             >
-              <span className="material-symbols-outlined text-3xl transition group-hover:scale-105">
+              <span className="material-symbols-outlined text-2xl md:text-3xl transition group-hover:scale-105">
                 book
               </span>
             </button>
@@ -401,10 +401,10 @@ export default function Landing() {
           ) : (
             <Link
               href="/login"
-              className="inline-flex items-center gap-2 rounded-full bg-yellow-400 px-4 py-2 text-sm font-semibold text-slate-950 shadow-lg shadow-yellow-500/40 transition hover:bg-yellow-300 hover:shadow-yellow-400/60 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-300"
+              className="inline-flex items-center gap-1.5 md:gap-2 rounded-full bg-yellow-400 px-3 md:px-4 py-1.5 md:py-2 text-xs md:text-sm font-semibold text-slate-950 shadow-lg shadow-yellow-500/40 transition hover:bg-yellow-300 hover:shadow-yellow-400/60 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-300"
             >
-              <span className="material-symbols-outlined text-base">login</span>
-              Sign In
+              <span className="material-symbols-outlined text-sm md:text-base">login</span>
+              <span className="hidden sm:inline">Sign In</span>
             </Link>
           )}
         </div>
@@ -415,13 +415,13 @@ export default function Landing() {
       )}
 
       {/* MAIN CONTENT */}
-      <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 pt-20">
+      <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 pt-16 md:pt-20">
         
         {/* HERO SECTION */}
         <section
           id="hero"
           ref={heroRef}
-          className="min-h-[140vh] flex flex-col justify-start items-center text-center px-6 relative overflow-hidden"
+          className="min-h-[120vh] md:min-h-[140vh] flex flex-col justify-start items-center text-center px-4 md:px-6 relative overflow-hidden"
         >
           {/* Scroll-reactive background layer */}
           <motion.div
@@ -429,35 +429,35 @@ export default function Landing() {
             style={{ scale: heroScale, y: heroY }}
           />
           <motion.div
-            className="flex flex-col items-center z-10 mt-28"
+            className="flex flex-col items-center z-10 mt-16 md:mt-28"
             variants={heroTextVariants}
             initial="hidden"
             animate="visible"
           >
             <motion.h1
               variants={heroItemVariants}
-              className="text-3xl sm:text-4xl md:text-5xl font-bold mb-4 text-center drop-shadow-[0_0_25px_rgba(250,204,21,0.45)] text-white px-4"
+              className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4 text-center drop-shadow-[0_0_25px_rgba(250,204,21,0.45)] text-white px-2 md:px-4"
             >
               Welcome to Studio Ghibli Explorer
             </motion.h1>
             <motion.p
               variants={heroItemVariants}
-              className="text-base sm:text-lg max-w-2xl mb-6 text-center text-slate-300 px-4"
+              className="text-sm sm:text-base md:text-lg max-w-2xl mb-4 md:mb-6 text-center text-slate-300 px-2 md:px-4"
             >
               Explore the worlds, characters, and timeless stories of Studio Ghibli. Track your favorites, plan what to watch next, and celebrate every scene.
             </motion.p>
             <motion.a
               variants={heroItemVariants}
               href="#contact"
-              className="inline-flex items-center gap-2 rounded-full bg-yellow-400 px-6 py-3 text-sm font-semibold text-slate-950 shadow-xl shadow-yellow-500/50 transition hover:bg-yellow-300 hover:shadow-yellow-400/70 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-300"
+              className="inline-flex items-center gap-1.5 md:gap-2 rounded-full bg-yellow-400 px-4 md:px-6 py-2 md:py-3 text-xs md:text-sm font-semibold text-slate-950 shadow-xl shadow-yellow-500/50 transition hover:bg-yellow-300 hover:shadow-yellow-400/70 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-300"
             >
-              <span className="material-symbols-outlined text-base">mail</span>
+              <span className="material-symbols-outlined text-sm md:text-base">mail</span>
               Contact Us
             </motion.a>
           </motion.div>
 
           <motion.div
-            className="w-full mt-4 sm:mt-6 md:mt-8 relative"
+            className="w-full mt-3 sm:mt-4 md:mt-6 lg:mt-8 relative"
             initial={{ opacity: 0, y: 40 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut", delay: 0.4 }}
@@ -487,8 +487,8 @@ export default function Landing() {
                 }}
               />
             ) : (
-              <div className="h-[350px] sm:h-[400px] md:h-[450px] flex items-center justify-center">
-                <div className="w-10 h-10 sm:w-12 sm:h-12 border-4 border-yellow-400/30 border-t-yellow-400 rounded-full animate-spin"></div>
+              <div className="h-[300px] sm:h-[350px] md:h-[400px] lg:h-[450px] flex items-center justify-center">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 border-4 border-yellow-400/30 border-t-yellow-400 rounded-full animate-spin"></div>
                 </div>
             )}
           </motion.div>
@@ -502,42 +502,42 @@ export default function Landing() {
         {/* Contact Section */}
         <motion.section
           id="contact"
-          className="relative overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-yellow-900 px-6 py-20"
+          className="relative overflow-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-yellow-900 px-4 md:px-6 py-12 md:py-20"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.4 }}
           transition={{ duration: 0.8, ease: "easeOut" }}
         >
           {/* Top gradient transition from black timeline */}
-          <div className="absolute top-0 left-0 right-0 h-64 bg-gradient-to-b from-black via-slate-950/50 to-transparent z-10 pointer-events-none" />
+          <div className="absolute top-0 left-0 right-0 h-32 md:h-64 bg-gradient-to-b from-black via-slate-950/50 to-transparent z-10 pointer-events-none" />
           
           <div className="absolute inset-0 pointer-events-none">
-            <div className="absolute -left-10 top-10 h-32 w-32 rounded-full bg-yellow-500/30 blur-3xl" />
-            <div className="absolute right-0 bottom-10 h-40 w-40 rounded-full bg-sky-500/30 blur-3xl" />
+            <div className="absolute -left-10 top-10 h-24 w-24 md:h-32 md:w-32 rounded-full bg-yellow-500/30 blur-3xl" />
+            <div className="absolute right-0 bottom-10 h-32 w-32 md:h-40 md:w-40 rounded-full bg-sky-500/30 blur-3xl" />
           </div>
 
-          <div className="relative mx-auto flex max-w-5xl flex-col gap-8 rounded-3xl bg-slate-900/80 p-8 shadow-2xl shadow-black/60 ring-1 ring-yellow-400/40 backdrop-blur">
-            <div className="flex flex-col items-start gap-3 text-left">
-              <p className="inline-flex items-center gap-2 rounded-full bg-yellow-500/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.24em] text-yellow-300 ring-1 ring-yellow-400/40">
+          <div className="relative mx-auto flex max-w-5xl flex-col gap-4 md:gap-8 rounded-2xl md:rounded-3xl bg-slate-900/80 p-4 md:p-8 shadow-2xl shadow-black/60 ring-1 ring-yellow-400/40 backdrop-blur">
+            <div className="flex flex-col items-start gap-2 md:gap-3 text-left">
+              <p className="inline-flex items-center gap-1.5 md:gap-2 rounded-full bg-yellow-500/10 px-3 md:px-4 py-1.5 md:py-2 text-[10px] md:text-xs font-semibold uppercase tracking-[0.24em] text-yellow-300 ring-1 ring-yellow-400/40">
                 Get in touch
               </p>
-              <h2 className="text-3xl font-semibold text-white">Contact</h2>
-              <p className="max-w-2xl text-base text-slate-200">
-                Questions, feedback, or collaboration ideas? Reach out and we’ll
+              <h2 className="text-2xl md:text-3xl font-semibold text-white">Contact</h2>
+              <p className="max-w-2xl text-sm md:text-base text-slate-200">
+                Questions, feedback, or collaboration ideas? Reach out and we'll
                 get back to you soon.
               </p>
             </div>
 
-            <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-              <div className="space-y-4">
-                <div className="rounded-2xl border border-yellow-400/40 bg-slate-900/80 p-5 shadow-sm shadow-black/50">
-                  <div className="flex items-center gap-3">
-                    <span className="material-symbols-outlined text-yellow-300">mail</span>
+            <div className="grid gap-4 md:gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+              <div className="space-y-3 md:space-y-4">
+                <div className="rounded-xl md:rounded-2xl border border-yellow-400/40 bg-slate-900/80 p-3 md:p-5 shadow-sm shadow-black/50">
+                  <div className="flex items-center gap-2 md:gap-3">
+                    <span className="material-symbols-outlined text-yellow-300 text-lg md:text-xl">mail</span>
                     <div>
-                      <div className="text-sm font-semibold text-white">Email us</div>
+                      <div className="text-xs md:text-sm font-semibold text-white">Email us</div>
                       <a
                         href="mailto:studioghiblifilmography@gmail.com"
-                        className="text-sm text-yellow-300 underline underline-offset-4"
+                        className="text-xs md:text-sm text-yellow-300 underline underline-offset-4 break-all"
                       >
                         studioghiblifilmography@gmail.com
                       </a>
@@ -545,61 +545,61 @@ export default function Landing() {
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-sky-500/40 bg-slate-900/80 p-5 shadow-sm shadow-black/50">
-                  <div className="flex items-center gap-3">
-                    <span className="material-symbols-outlined text-sky-300">chat</span>
+                <div className="rounded-xl md:rounded-2xl border border-sky-500/40 bg-slate-900/80 p-3 md:p-5 shadow-sm shadow-black/50">
+                  <div className="flex items-center gap-2 md:gap-3">
+                    <span className="material-symbols-outlined text-sky-300 text-lg md:text-xl">chat</span>
                     <div>
-                      <div className="text-sm font-semibold text-white">Community</div>
-                      <p className="text-sm text-slate-200">
+                      <div className="text-xs md:text-sm font-semibold text-white">Community</div>
+                      <p className="text-xs md:text-sm text-slate-200">
                         Join discussions and share your favorite Ghibli moments.
                       </p>
                     </div>
                   </div>
-                  <div className="mt-3 flex gap-3">
+                  <div className="mt-2 md:mt-3 flex gap-2 md:gap-3">
                     <a
                       href="https://discord.gg"
-                      className="inline-flex items-center gap-2 rounded-full bg-sky-500/10 px-3 py-1.5 text-xs font-semibold text-sky-200 ring-1 ring-sky-400/40"
+                      className="inline-flex items-center gap-1.5 md:gap-2 rounded-full bg-sky-500/10 px-2.5 md:px-3 py-1 md:py-1.5 text-[10px] md:text-xs font-semibold text-sky-200 ring-1 ring-sky-400/40"
                     >
-                      <span className="material-symbols-outlined text-sm">forum</span>
+                      <span className="material-symbols-outlined text-xs md:text-sm">forum</span>
                       Discord
                     </a>
                     <a
                       href="https://twitter.com"
-                      className="inline-flex items-center gap-2 rounded-full bg-sky-500/10 px-3 py-1.5 text-xs font-semibold text-sky-200 ring-1 ring-sky-400/40"
+                      className="inline-flex items-center gap-1.5 md:gap-2 rounded-full bg-sky-500/10 px-2.5 md:px-3 py-1 md:py-1.5 text-[10px] md:text-xs font-semibold text-sky-200 ring-1 ring-sky-400/40"
                     >
-                      <span className="material-symbols-outlined text-sm">alternate_email</span>
+                      <span className="material-symbols-outlined text-xs md:text-sm">alternate_email</span>
                       Twitter
                     </a>
                   </div>
                 </div>
 
-                <div className="rounded-2xl border border-yellow-400/40 bg-slate-900/80 p-5 shadow-sm shadow-black/50">
-                  <div className="flex items-center gap-3">
-                    <span className="material-symbols-outlined text-yellow-300">code</span>
+                <div className="rounded-xl md:rounded-2xl border border-yellow-400/40 bg-slate-900/80 p-3 md:p-5 shadow-sm shadow-black/50">
+                  <div className="flex items-center gap-2 md:gap-3">
+                    <span className="material-symbols-outlined text-yellow-300 text-lg md:text-xl">code</span>
                     <div>
-                      <div className="text-sm font-semibold text-white">GitHub</div>
-                      <p className="text-sm text-slate-200">
+                      <div className="text-xs md:text-sm font-semibold text-white">GitHub</div>
+                      <p className="text-xs md:text-sm text-slate-200">
                         Browse the codebase, open issues, or contribute.
                       </p>
                     </div>
                   </div>
-                  <div className="mt-3">
+                  <div className="mt-2 md:mt-3">
                     <a
                       href="https://github.com/trbyte/studio-ghibli-app"
-                      className="inline-flex items-center gap-2 rounded-full bg-yellow-500/10 px-3 py-1.5 text-xs font-semibold text-yellow-200 ring-1 ring-yellow-400/60 transition hover:bg-yellow-500/20"
+                      className="inline-flex items-center gap-1.5 md:gap-2 rounded-full bg-yellow-500/10 px-2.5 md:px-3 py-1 md:py-1.5 text-[10px] md:text-xs font-semibold text-yellow-200 ring-1 ring-yellow-400/60 transition hover:bg-yellow-500/20"
                     >
-                      <span className="material-symbols-outlined text-sm">open_in_new</span>
+                      <span className="material-symbols-outlined text-xs md:text-sm">open_in_new</span>
                       View on GitHub
                     </a>
                   </div>
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-yellow-400/40 bg-slate-950/90 p-6 shadow-lg shadow-black/70 ring-1 ring-yellow-400/60">
-                <form className="space-y-4" onSubmit={handleContactSubmit}>
-                  <div className="grid gap-4 sm:grid-cols-2">
+              <div className="rounded-xl md:rounded-2xl border border-yellow-400/40 bg-slate-950/90 p-4 md:p-6 shadow-lg shadow-black/70 ring-1 ring-yellow-400/60">
+                <form className="space-y-3 md:space-y-4" onSubmit={handleContactSubmit}>
+                  <div className="grid gap-3 md:gap-4 sm:grid-cols-2">
                     <div className="text-left">
-                      <label className="block text-sm font-semibold text-slate-200">
+                      <label className="block text-xs md:text-sm font-semibold text-slate-200">
                         Name
                       </label>
                       <input
@@ -607,17 +607,17 @@ export default function Landing() {
                         name="name"
                         value={contactData.name}
                         onChange={(e) => setContactData("name", e.target.value)}
-                        className="mt-1 w-full rounded-xl border border-yellow-400/60 bg-slate-900/80 px-3 py-2 text-sm text-slate-50 shadow-inner shadow-black/40 placeholder:text-slate-400 focus:border-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-300"
+                        className="mt-1 w-full rounded-lg md:rounded-xl border border-yellow-400/60 bg-slate-900/80 px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm text-slate-50 shadow-inner shadow-black/40 placeholder:text-slate-400 focus:border-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-300"
                         placeholder="Sophie"
                       />
                       {contactErrors.name && (
-                        <p className="mt-1 text-xs text-red-400">
+                        <p className="mt-1 text-[10px] md:text-xs text-red-400">
                           {contactErrors.name}
                         </p>
                       )}
                     </div>
                     <div className="text-left">
-                      <label className="block text-sm font-semibold text-slate-200">
+                      <label className="block text-xs md:text-sm font-semibold text-slate-200">
                         Email
                       </label>
                       <input
@@ -625,18 +625,18 @@ export default function Landing() {
                         name="email"
                         value={contactData.email}
                         onChange={(e) => setContactData("email", e.target.value)}
-                        className="mt-1 w-full rounded-xl border border-yellow-400/60 bg-slate-900/80 px-3 py-2 text-sm text-slate-50 shadow-inner shadow-black/40 placeholder:text-slate-400 focus:border-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-300"
+                        className="mt-1 w-full rounded-lg md:rounded-xl border border-yellow-400/60 bg-slate-900/80 px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm text-slate-50 shadow-inner shadow-black/40 placeholder:text-slate-400 focus:border-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-300"
                         placeholder="you@example.com"
                       />
                       {contactErrors.email && (
-                        <p className="mt-1 text-xs text-red-400">
+                        <p className="mt-1 text-[10px] md:text-xs text-red-400">
                           {contactErrors.email}
                         </p>
                       )}
                     </div>
                   </div>
                   <div className="text-left">
-                    <label className="block text-sm font-semibold text-slate-200">
+                    <label className="block text-xs md:text-sm font-semibold text-slate-200">
                       Message
                     </label>
                     <textarea
@@ -646,11 +646,11 @@ export default function Landing() {
                       onChange={(e) =>
                         setContactData("message", e.target.value)
                       }
-                      className="mt-1 w-full rounded-xl border border-yellow-400/60 bg-slate-900/80 px-3 py-2 text-sm text-slate-50 shadow-inner shadow-black/40 placeholder:text-slate-400 focus:border-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-300"
+                      className="mt-1 w-full rounded-lg md:rounded-xl border border-yellow-400/60 bg-slate-900/80 px-2.5 md:px-3 py-1.5 md:py-2 text-xs md:text-sm text-slate-50 shadow-inner shadow-black/40 placeholder:text-slate-400 focus:border-yellow-300 focus:outline-none focus:ring-2 focus:ring-yellow-300"
                       placeholder="Share your thoughts..."
                     />
                     {contactErrors.message && (
-                      <p className="mt-1 text-xs text-red-400">
+                      <p className="mt-1 text-[10px] md:text-xs text-red-400">
                         {contactErrors.message}
                       </p>
                     )}
@@ -658,9 +658,9 @@ export default function Landing() {
                   <button
                     type="submit"
                     disabled={contactProcessing}
-                    className="inline-flex items-center justify-center gap-2 rounded-full bg-yellow-400 px-5 py-2.5 text-sm font-semibold text-slate-950 shadow-lg shadow-yellow-500/60 transition hover:bg-yellow-300 hover:shadow-yellow-400/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-300"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 md:gap-2 rounded-full bg-yellow-400 px-4 md:px-5 py-2 md:py-2.5 text-xs md:text-sm font-semibold text-slate-950 shadow-lg shadow-yellow-500/60 transition hover:bg-yellow-300 hover:shadow-yellow-400/80 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-300"
                   >
-                    <span className="material-symbols-outlined text-base">send</span>
+                    <span className="material-symbols-outlined text-sm md:text-base">send</span>
                     {contactProcessing ? "Sending..." : "Send message"}
                   </button>
                 </form>

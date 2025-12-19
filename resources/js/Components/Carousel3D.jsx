@@ -18,9 +18,9 @@ export const Carousel3D = ({ movies = [], onSelectMovie }) => {
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
-      if (width < 640) setRadius(550);
-      else if (width < 1024) setRadius(750);
-      else setRadius(1000);
+      if (width < 640) setRadius(480);
+      else if (width < 1024) setRadius(650);
+      else setRadius(1100);
     };
     handleResize();
     window.addEventListener('resize', handleResize);

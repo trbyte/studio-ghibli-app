@@ -7,10 +7,12 @@ html {
   scroll-behavior: smooth;
 }
 
-/* Custom cursor with color inversion (scoped) */
-.custom-cursor-area,
-.custom-cursor-area * {
-  cursor: none !important;
+/* Custom cursor with color inversion (scoped) - Desktop only */
+@media (min-width: 1024px) {
+  .custom-cursor-area,
+  .custom-cursor-area * {
+    cursor: none !important;
+  }
 }
 
 .cursor-invert {
@@ -29,6 +31,13 @@ html {
   justify-content: center;
   will-change: transform;
   isolation: isolate;
+}
+
+@media (max-width: 1023px) {
+  .cursor-invert,
+  .cursor-icon {
+    display: none !important;
+  }
 }
 
 .cursor-icon {
@@ -134,7 +143,7 @@ body::-webkit-scrollbar {
 .carousel-wrapper {
   width: 100%;
   height: 100%;
-  min-height: 450px;
+  min-height: 500px;
   position: relative;
   display: flex;
   align-items: center;
@@ -147,7 +156,7 @@ body::-webkit-scrollbar {
 
 @media (max-width: 640px) {
   .carousel-wrapper {
-    min-height: 350px;
+    min-height: 300px;
     padding: 1rem 0;
     perspective: 2000px;
   }
@@ -155,37 +164,37 @@ body::-webkit-scrollbar {
 
 @media (min-width: 641px) and (max-width: 1024px) {
   .carousel-wrapper {
-    min-height: 400px;
+    min-height: 340px;
     perspective: 2500px;
   }
 }
 
 .carousel-inner {
   position: relative;
-  width: 240px;
-  height: 360px;
+  width: 260px;
+  height: 390px;
   transform-style: preserve-3d;
   transform-origin: center center;
 }
 
 @media (max-width: 640px) {
   .carousel-inner {
-    width: 160px;
-    height: 240px;
+    width: 140px;
+    height: 210px;
   }
 }
 
 @media (min-width: 641px) and (max-width: 1024px) {
   .carousel-inner {
-    width: 200px;
-    height: 300px;
+    width: 170px;
+    height: 255px;
   }
 }
 
 .carousel-card {
   position: absolute;
-  width: 240px;
-  height: 360px;
+  width: 260px;
+  height: 390px;
   border-radius: 12px;
   overflow: hidden;
   backface-visibility: hidden;
@@ -195,16 +204,16 @@ body::-webkit-scrollbar {
 
 @media (max-width: 640px) {
   .carousel-card {
-    width: 160px;
-    height: 240px;
+    width: 140px;
+    height: 210px;
     border-radius: 8px;
   }
 }
 
 @media (min-width: 641px) and (max-width: 1024px) {
   .carousel-card {
-    width: 200px;
-    height: 300px;
+    width: 170px;
+    height: 255px;
     border-radius: 10px;
   }
 }
