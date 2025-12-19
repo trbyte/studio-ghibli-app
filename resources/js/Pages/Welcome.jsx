@@ -7,10 +7,21 @@ export default function Welcome({ auth }) {
   const userName = auth?.user?.name || "Explorer";
 
   useEffect(() => {
-    // Auto-redirect to landing page after 2.5 seconds
+    // Auto-redirect to landing page after 2.5 seconds with smooth transition
     const timer = setTimeout(() => {
       router.visit("/", {
         preserveScroll: false,
+        onBefore: () => {
+          // Add fade-out effect before transition
+          document.body.style.transition = 'opacity 0.3s ease-out';
+          document.body.style.opacity = '0';
+        },
+        onFinish: () => {
+          // Reset opacity after transition
+          setTimeout(() => {
+            document.body.style.opacity = '1';
+          }, 100);
+        },
       });
     }, 2500);
 
@@ -18,7 +29,14 @@ export default function Welcome({ auth }) {
   }, []);
 
     return (
-    <div className="fixed inset-0 z-50 overflow-hidden">
+    <motion.div 
+      data-welcome-page
+      className="fixed inset-0 z-50 overflow-hidden"
+      initial={{ opacity: 0, scale: 0.95 }}
+      animate={{ opacity: 1, scale: 1 }}
+      exit={{ opacity: 0, scale: 1.05 }}
+      transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+    >
       <Vortex
         backgroundColor="black"
         baseHue={60}
@@ -77,6 +95,6 @@ export default function Welcome({ auth }) {
           Redirecting automatically...
         </motion.div>
       </Vortex>
-            </div>
+    </motion.div>
     );
 }

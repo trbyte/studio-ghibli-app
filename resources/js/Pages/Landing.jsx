@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useForm, usePage, router } from "@inertiajs/react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import Timeline from "./Timeline";
 import { Carousel3D } from "../Components/Carousel3D";
 import { CustomCursor } from "../Components/CustomCursor";
@@ -434,7 +434,12 @@ export default function Landing() {
       )}
 
       {/* MAIN CONTENT */}
-      <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 pt-16 md:pt-20">
+      <motion.div 
+        className="min-h-screen flex flex-col bg-slate-950 text-slate-100 pt-16 md:pt-20"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+      >
         
         {/* HERO SECTION */}
         <section
@@ -739,7 +744,7 @@ export default function Landing() {
             </div>
           </div>
         </footer>
-      </div>
+      </motion.div>
     </div>
   );
 }
