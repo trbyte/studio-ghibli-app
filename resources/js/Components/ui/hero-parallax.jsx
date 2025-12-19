@@ -5,6 +5,7 @@ import {
   useTransform,
   useSpring,
   MotionValue,
+  useMotionValue,
 } from "framer-motion";
 
 
@@ -27,22 +28,59 @@ export const HeroParallax = ({
     useTransform(scrollYProgress, [0, 1], [0, -1000]),
     springConfig
   );
-  const rotateX = useSpring(
+  
+  // Always create all transforms and springs unconditionally - this follows React hooks rules
+  const rotateXDesktop = useSpring(
     useTransform(scrollYProgress, [0, 0.2], [15, 0]),
     springConfig
   );
-  const opacity = useSpring(
+  const opacityDesktop = useSpring(
     useTransform(scrollYProgress, [0, 0.2], [0.2, 1]),
     springConfig
   );
-  const rotateZ = useSpring(
+  const rotateZDesktop = useSpring(
     useTransform(scrollYProgress, [0, 0.2], [20, 0]),
     springConfig
   );
-  const translateY = useSpring(
+  const translateYDesktop = useSpring(
     useTransform(scrollYProgress, [0, 0.2], [-700, 500]),
     springConfig
   );
+  
+  const rotateXMobile = useSpring(
+    useTransform(scrollYProgress, [0, 0.2], [5, 0]),
+    springConfig
+  );
+  const opacityMobile = useSpring(
+    useTransform(scrollYProgress, [0, 0.2], [0.3, 1]),
+    springConfig
+  );
+  const rotateZMobile = useSpring(
+    useTransform(scrollYProgress, [0, 0.2], [5, 0]),
+    springConfig
+  );
+  const translateYMobile = useSpring(
+    useTransform(scrollYProgress, [0, 0.2], [-100, 100]),
+    springConfig
+  );
+  
+  // Detect screen size for responsive transforms
+  const [isDesktop, setIsDesktop] = React.useState(false);
+  
+  React.useEffect(() => {
+    const checkScreenSize = () => {
+      setIsDesktop(window.innerWidth >= 768); // md breakpoint
+    };
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
+  
+  // Conditionally select which transforms to use (this is fine - we're selecting values, not calling hooks)
+  const rotateX = isDesktop ? rotateXDesktop : rotateXMobile;
+  const opacity = isDesktop ? opacityDesktop : opacityMobile;
+  const rotateZ = isDesktop ? rotateZDesktop : rotateZMobile;
+  const translateY = isDesktop ? translateYDesktop : translateYMobile;
   
   // Fade out parallax cards very early - completely gone before carousel reaches center
   // Fades from 0 to 0.1 scroll progress
@@ -69,7 +107,7 @@ export const HeroParallax = ({
         opacity: parallaxOpacity,
         pointerEvents: pointerEventsEnabled ? 'auto' : 'none',
       }}
-      className="absolute inset-0 overflow-hidden antialiased flex flex-col self-auto [perspective:1000px] [transform-style:preserve-3d] z-0"
+      className="absolute inset-0 overflow-visible md:overflow-hidden antialiased flex flex-col items-center justify-center md:items-start md:justify-start [perspective:1000px] [transform-style:preserve-3d] z-[5]"
     >
       <motion.div
         style={{
@@ -78,9 +116,21 @@ export const HeroParallax = ({
           translateY,
           opacity,
         }}
+        initial={{ opacity: 0, y: 100, scale: 0.8 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ 
+          duration: 0.8, 
+          ease: [0.25, 0.1, 0.25, 1],
+          staggerChildren: 0.1
+        }}
         className=""
       >
-        <motion.div className="flex flex-row-reverse space-x-reverse space-x-10 md:space-x-20 mb-10 md:mb-20 mt-40 md:mt-60">
+        <motion.div 
+          className="flex flex-row-reverse space-x-reverse space-x-3 sm:space-x-4 md:space-x-20 mb-4 sm:mb-6 md:mb-20 mt-0 sm:mt-10 md:mt-80 justify-center md:justify-start"
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.1, ease: [0.25, 0.1, 0.25, 1] }}
+        >
           {firstRow.map((product) => (
             <ProductCard
               product={product}
@@ -89,7 +139,12 @@ export const HeroParallax = ({
             />
           ))}
         </motion.div>
-        <motion.div className="flex flex-row mb-10 md:mb-20 space-x-10 md:space-x-20">
+        <motion.div 
+          className="flex flex-row mb-4 sm:mb-6 md:mb-20 space-x-3 sm:space-x-4 md:space-x-20 justify-center md:justify-start"
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.3, ease: [0.25, 0.1, 0.25, 1] }}
+        >
           {secondRow.map((product) => (
             <ProductCard
               product={product}
@@ -98,7 +153,12 @@ export const HeroParallax = ({
             />
           ))}
         </motion.div>
-        <motion.div className="flex flex-row-reverse space-x-reverse space-x-10 md:space-x-20">
+        <motion.div 
+          className="flex flex-row-reverse space-x-reverse space-x-3 sm:space-x-4 md:space-x-20 justify-center md:justify-start"
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6, delay: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+        >
           {thirdRow.map((product) => (
             <ProductCard
               product={product}
@@ -145,11 +205,17 @@ export const ProductCard = ({
       style={{
         x: translate,
       }}
+      initial={{ opacity: 0, y: 50, scale: 0.9 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ 
+        duration: 0.6, 
+        ease: [0.25, 0.1, 0.25, 1]
+      }}
       whileHover={{
         y: -20,
       }}
       key={product.title}
-      className="group/product h-64 md:h-96 w-[20rem] md:w-[30rem] relative shrink-0 cursor-pointer"
+      className="group/product h-40 sm:h-52 md:h-96 w-[10rem] sm:w-[14rem] md:w-[30rem] relative shrink-0 cursor-pointer"
       onClick={handleClick}
     >
       <div className="block group-hover/product:shadow-2xl">

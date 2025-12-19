@@ -440,7 +440,7 @@ export default function Landing() {
         <section
           id="hero"
           ref={heroRef}
-          className="min-h-[200vh] md:min-h-[250vh] flex flex-col justify-start items-center text-center px-4 md:px-6 relative overflow-hidden"
+          className="min-h-screen sm:min-h-[150vh] md:min-h-[250vh] flex flex-col justify-center md:justify-start items-center text-center px-4 md:px-6 relative overflow-hidden"
         >
           {/* Scroll-reactive background layer */}
           <motion.div
@@ -454,7 +454,7 @@ export default function Landing() {
           )}
           
           <motion.div
-            className="flex flex-col items-center z-10 mt-16 md:mt-28 relative"
+            className="flex flex-col items-center justify-center z-10 mt-0 md:mt-28 relative w-full"
             variants={heroTextVariants}
             initial="hidden"
             animate="visible"
@@ -484,7 +484,7 @@ export default function Landing() {
 
           {/* Carousel - fade in on scroll */}
           <motion.div
-            className="w-full mt-8 sm:mt-12 md:mt-16 lg:mt-20 -mb-16 sm:-mb-20 md:-mb-24 lg:-mb-32 relative z-20"
+            className="w-full flex items-center justify-center mt-8 sm:mt-12 md:mt-16 lg:mt-20 mb-16 sm:mb-20 md:-mb-24 lg:-mb-32 relative z-20"
             style={{ 
               opacity: carouselOpacity,
               y: carouselY
