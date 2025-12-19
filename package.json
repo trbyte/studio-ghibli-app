@@ -23,6 +23,7 @@
         "vite": "^7.0.7"
     },
     "dependencies": {
-        "framer-motion": "^12.23.25"
+        "framer-motion": "^12.23.25",
+        "simplex-noise": "^4.0.3"
     }
 }

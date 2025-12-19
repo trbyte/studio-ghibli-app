@@ -20,6 +20,14 @@ Route::get('/', function () {
     ]);
 });
 
+Route::middleware('auth')->get('/welcome', function () {
+    return Inertia::render('Welcome', [
+        'auth' => [
+            'user' => Auth::user(),
+        ],
+    ]);
+})->name('welcome');
+
 Route::middleware('auth')->get('/dashboard', function () {
     return redirect('/');
 })->name('dashboard');

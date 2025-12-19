@@ -33,7 +33,8 @@ class AuthenticatedSessionController extends Controller
 
         $request->session()->regenerate();
 
-        return redirect()->intended('/');
+        // Redirect to welcome page first, then it will auto-redirect to home
+        return redirect()->intended('/welcome');
     }
 
     /**

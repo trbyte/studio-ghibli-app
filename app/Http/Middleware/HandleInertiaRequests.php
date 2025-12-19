@@ -46,15 +46,21 @@ class HandleInertiaRequests extends Middleware
                 // Create a lookup map for films by ID
                 $filmsMap = collect($films)->keyBy('id');
 
+                // Group actions by film_id to find shared notes
+                $notesByFilmId = $actions->groupBy('film_id')->map(function ($filmActions) {
+                    // Find the first non-null note for this film_id (all should be the same)
+                    return $filmActions->firstWhere('note', '!=', null)?->note ?? null;
+                });
+
                 // Map actions with film titles from API
-                $actionsByType = $actions->groupBy('action_type')->map(function ($items) use ($filmsMap) {
-                    return $items->map(function ($item) use ($filmsMap) {
+                $actionsByType = $actions->groupBy('action_type')->map(function ($items) use ($filmsMap, $notesByFilmId) {
+                    return $items->map(function ($item) use ($filmsMap, $notesByFilmId) {
                         $film = $filmsMap->get($item->film_id);
                         return [
                             'id' => $item->id,  // film_action.id (database record ID)
                             'film_id' => $item->film_id,  // Ghibli API film ID
                             'title' => $film['title'] ?? 'Unknown Film',
-                            'note' => $item->note,  // User's personal note
+                            'note' => $notesByFilmId->get($item->film_id),  // Shared note for this film
                         ];
                     })->values()->toArray();
                 });
