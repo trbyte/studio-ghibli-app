@@ -48,11 +48,12 @@ export default function DeleteUserForm({ className = '' }) {
     return (
         <section className={`space-y-6 ${className}`}>
             <header>
-                <h2 className="text-lg font-medium text-gray-900">
+                <h2 className="text-xl font-semibold text-red-400 flex items-center gap-2">
+                    <span className="material-symbols-outlined">warning</span>
                     Delete Account
                 </h2>
 
-                <p className="mt-1 text-sm text-gray-600">
+                <p className="mt-2 text-sm text-slate-400">
                     Once your account is deleted, all of its resources and data
                     will be permanently deleted. Before deleting your account,
                     please download any data or information that you wish to
@@ -61,16 +62,18 @@ export default function DeleteUserForm({ className = '' }) {
             </header>
 
             <DangerButton onClick={confirmUserDeletion}>
+                <span className="material-symbols-outlined text-base mr-2">delete</span>
                 Delete Account
             </DangerButton>
 
             <Modal show={confirmingUserDeletion} onClose={closeModal}>
-                <form onSubmit={deleteUser} className="p-6">
-                    <h2 className="text-lg font-medium text-gray-900">
+                <form onSubmit={deleteUser} className="p-6 bg-slate-900">
+                    <h2 className="text-xl font-semibold text-red-400 flex items-center gap-2">
+                        <span className="material-symbols-outlined">warning</span>
                         Are you sure you want to delete your account?
                     </h2>
 
-                    <p className="mt-1 text-sm text-gray-600">
+                    <p className="mt-3 text-sm text-slate-300">
                         Once your account is deleted, all of its resources and
                         data will be permanently deleted. Please enter your
                         password to confirm you would like to permanently delete
@@ -81,7 +84,7 @@ export default function DeleteUserForm({ className = '' }) {
                         <InputLabel
                             htmlFor="password"
                             value="Password"
-                            className="sr-only"
+                            className="text-slate-200"
                         />
 
                         <TextInput
@@ -93,9 +96,9 @@ export default function DeleteUserForm({ className = '' }) {
                             onChange={(e) =>
                                 setData('password', e.target.value)
                             }
-                            className="mt-1 block w-3/4"
+                            className="mt-1 block w-full bg-slate-800/60 border-red-400/30 text-slate-100 placeholder:text-slate-500 focus:border-red-400/50 focus:ring-red-400/30"
                             isFocused
-                            placeholder="Password"
+                            placeholder="Enter your password"
                         />
 
                         <InputError
@@ -104,7 +107,7 @@ export default function DeleteUserForm({ className = '' }) {
                         />
                     </div>
 
-                    <div className="mt-6 flex justify-end">
+                    <div className="mt-6 flex justify-end gap-3">
                         <SecondaryButton onClick={closeModal}>
                             Cancel
                         </SecondaryButton>

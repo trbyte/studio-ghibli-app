@@ -65,11 +65,20 @@ function UserMenu({ authUser }) {
           </div>
 
           <Link
+            href="/profile"
+            className="flex items-center gap-2 block w-full text-left px-4 py-2 text-slate-200 hover:bg-slate-700/60 hover:text-yellow-400 transition"
+          >
+            <span className="material-symbols-outlined text-base">settings</span>
+            Settings
+          </Link>
+
+          <Link
             href="/logout"
             method="post"
             as="button"
-            className="block w-full text-left px-4 py-2 text-slate-200 hover:bg-slate-700/60 hover:text-yellow-400 transition"
+            className="flex items-center gap-2 block w-full text-left px-4 py-2 text-slate-200 hover:bg-slate-700/60 hover:text-yellow-400 transition"
           >
+            <span className="material-symbols-outlined text-base">logout</span>
             Logout
           </Link>
         </div>
