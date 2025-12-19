@@ -1,10 +1,12 @@
 import React from "react";
 import { Link, useForm, usePage, router } from "@inertiajs/react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
 import Timeline from "./Timeline";
 import { Carousel3D } from "../Components/Carousel3D";
 import { CustomCursor } from "../Components/CustomCursor";
 import Modal from "../Components/Modal";
+import { HeroParallax } from "../Components/ui/hero-parallax";
+import Typewriter from "../Components/Typewriter";
 
 // Hero motion variants
 const heroTextVariants = {
@@ -125,6 +127,7 @@ function Sidebar({ open, setOpen, userList }) {
   const handleSaveNotes = () => {
     if (editingMovie) {
       // Send PATCH request to backend to save the note
+      // The backend will update ALL film_action records for this film_id to share the same note
       router.patch(`/film-actions/${editingMovie.id}`, {
         note: notes,
       }, {
@@ -132,6 +135,8 @@ function Sidebar({ open, setOpen, userList }) {
         onSuccess: () => {
           setEditingMovie(null);
           setNotes("");
+          // Force a page reload to refresh the userList data
+          router.reload({ only: ['userList'] });
         },
         onError: (errors) => {
           console.error('Failed to save note:', errors);
@@ -315,6 +320,20 @@ export default function Landing() {
   });
   const heroScale = useTransform(scrollYProgress, [0, 1], [1, 1.06]);
   const heroY = useTransform(scrollYProgress, [0, 1], [0, -80]);
+  
+  // Fade in carousel early - fully visible when it reaches center of viewport
+  // Starts fading in at 0.1 (after parallax fade completes), fully visible by 0.25
+  const carouselOpacity = useTransform(scrollYProgress, [0.1, 0.25], [0, 1]);
+  const carouselY = useTransform(scrollYProgress, [0.1, 0.25], [50, 0]);
+  
+  // Convert movies to products format for HeroParallax
+  const parallaxProducts = React.useMemo(() => {
+    return movies.slice(0, 15).map((movie) => ({
+      title: movie.title,
+      link: `#timeline-movie-${movie.id}`,
+      thumbnail: movie.image || movie.movie_banner || "",
+    }));
+  }, [movies]);
 
   const {
     data: contactData,
@@ -415,21 +434,32 @@ export default function Landing() {
       )}
 
       {/* MAIN CONTENT */}
-      <div className="min-h-screen flex flex-col bg-slate-950 text-slate-100 pt-16 md:pt-20">
+      <motion.div 
+        className="min-h-screen flex flex-col bg-slate-950 text-slate-100 pt-16 md:pt-20"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.6, ease: [0.25, 0.1, 0.25, 1] }}
+      >
         
         {/* HERO SECTION */}
         <section
           id="hero"
           ref={heroRef}
-          className="min-h-[120vh] md:min-h-[140vh] flex flex-col justify-start items-center text-center px-4 md:px-6 relative overflow-hidden"
+          className="min-h-screen sm:min-h-[150vh] md:min-h-[250vh] flex flex-col justify-center md:justify-start items-center text-center px-4 md:px-6 relative overflow-hidden"
         >
           {/* Scroll-reactive background layer */}
           <motion.div
             className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950"
             style={{ scale: heroScale, y: heroY }}
           />
+          
+          {/* Hero Parallax Cards - fade out on scroll */}
+          {!moviesLoading && parallaxProducts.length > 0 && (
+            <HeroParallax products={parallaxProducts} scrollYProgress={scrollYProgress} />
+          )}
+          
           <motion.div
-            className="flex flex-col items-center z-10 mt-16 md:mt-28"
+            className="flex flex-col items-center justify-center z-10 mt-0 md:mt-28 relative w-full"
             variants={heroTextVariants}
             initial="hidden"
             animate="visible"
@@ -438,7 +468,8 @@ export default function Landing() {
               variants={heroItemVariants}
               className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold mb-3 md:mb-4 text-center drop-shadow-[0_0_25px_rgba(250,204,21,0.45)] text-white px-2 md:px-4"
             >
-              Welcome to Studio Ghibli Explorer
+              Welcome to the <br className="hidden sm:block" />
+              <Typewriter text="World of Studio Ghibli" speed={80} />
             </motion.h1>
             <motion.p
               variants={heroItemVariants}
@@ -456,10 +487,14 @@ export default function Landing() {
             </motion.a>
           </motion.div>
 
+          {/* Carousel - fade in on scroll */}
           <motion.div
-            className="w-full mt-3 sm:mt-4 md:mt-6 lg:mt-8 relative"
+            className="w-full flex items-center justify-center mt-8 sm:mt-12 md:mt-16 lg:mt-20 mb-16 sm:mb-20 md:-mb-24 lg:-mb-32 relative z-20"
+            style={{ 
+              opacity: carouselOpacity,
+              y: carouselY
+            }}
             initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, ease: "easeOut", delay: 0.4 }}
           >
             {!moviesLoading ? (
@@ -709,7 +744,7 @@ export default function Landing() {
             </div>
           </div>
         </footer>
-      </div>
+      </motion.div>
     </div>
   );
 }

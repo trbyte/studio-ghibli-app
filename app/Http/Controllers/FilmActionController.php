@@ -65,6 +65,7 @@ class FilmActionController extends Controller
 
     /**
      * Update a film action's personal note.
+     * Updates ALL film actions for this film_id to share the same note.
      */
     public function update(Request $request, $id)
     {
@@ -77,10 +78,12 @@ class FilmActionController extends Controller
             ->where('user_id', Auth::id())
             ->firstOrFail();
 
-        // Update the note
-        $filmAction->update([
-            'note' => $request->note,
-        ]);
+        // Update ALL film actions for this film_id to share the same note
+        FilmAction::where('user_id', Auth::id())
+            ->where('film_id', $filmAction->film_id)
+            ->update([
+                'note' => $request->note,
+            ]);
 
         return redirect()->back();
     }

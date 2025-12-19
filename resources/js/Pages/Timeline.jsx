@@ -252,11 +252,12 @@ const TimelineSection = ({
   item,
   index,
   userList,
+  setActiveVideo,
   setActiveImage,
   setFallbackImage,
   setBackgroundOpacity,
   onWatchTrailer,
-  giphyMap,
+  videoMap,
 }) => {
   const ref = useRef(null);
 
@@ -272,39 +273,50 @@ const TimelineSection = ({
     offset: ["start end", "center center", "end start"]
   });
   
-  // Get GIF URL or fallback to static image
-  const getBackgroundImage = () => {
+  // Get video URL or fallback to static image
+  const getBackgroundVideo = () => {
     // Try exact match first
-    let gifUrl = giphyMap[item.title];
+    let videoUrl = videoMap[item.title];
     
     // If no exact match, try case-insensitive match
-    if (!gifUrl) {
+    if (!videoUrl) {
       const titleLower = item.title.toLowerCase();
-      for (const [key, value] of Object.entries(giphyMap)) {
+      for (const [key, value] of Object.entries(videoMap)) {
         if (key.toLowerCase() === titleLower && value) {
-          gifUrl = value;
+          videoUrl = value;
           break;
         }
       }
     }
     
-    if (gifUrl) {
-      return gifUrl;
+    // Additional fallback: try partial matches for common variations (e.g., Arrietty)
+    if (!videoUrl) {
+      const titleLower = item.title.toLowerCase();
+      // Handle "Arrietty" variations
+      if (titleLower.includes('arrietty') || titleLower.includes('arriety')) {
+        videoUrl = videoMap["The Secret World of Arrietty"] || videoMap["Arrietty"] || videoMap["The Borrower Arrietty"];
+      }
     }
-    // Fallback to static image
-    return item.movie_banner || item.image || "https://picsum.photos/1920/1080";
+    
+    return videoUrl;
   };
 
   useEffect(() => {
-    const backgroundImage = getBackgroundImage();
+    const backgroundVideo = getBackgroundVideo();
     const staticFallback = item.movie_banner || item.image || "https://picsum.photos/1920/1080";
     
-    // Set image when in view
+    // Set video or image when in view
     if (isInView || isCentered) {
-      setActiveImage(backgroundImage);
+      if (backgroundVideo) {
+        setActiveVideo(backgroundVideo);
+        setActiveImage(null);
+      } else {
+        setActiveVideo(null);
+        setActiveImage(staticFallback);
+      }
       setFallbackImage(staticFallback);
     }
-  }, [isInView, isCentered, item, setActiveImage, setFallbackImage, giphyMap]);
+  }, [isInView, isCentered, item, videoMap]);
 
   // Calculate opacity based on scroll progress with smooth fade-in
   useEffect(() => {
@@ -361,36 +373,38 @@ export default function Timeline({ userList = {} }) {
   const [timeline, setTimeline] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [activeVideo, setActiveVideo] = useState(null);
   const [activeImage, setActiveImage] = useState(null);
   const [fallbackImage, setFallbackImage] = useState(null);
   const [backgroundOpacity, setBackgroundOpacity] = useState(0);
   const playlistId = "PLkukk61q9mY_ps9HKovftqotZiKb34BVt";
-  const GIPHY_API_KEY = "Zxohb5mVWXHaNJL3MH6qpqlosFq1C3Qw";
 
-  // Map film titles to Giphy GIF URLs
-  const giphyMap = {
-    "Castle in the Sky": "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExdHVzbnl6YjU2YXNwcmZ5MzV3MXhjNDhnNmdma2VoeHE0bzJ4ZGZybiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/b54zZ33PedJAY/giphy.gif",
-    "Grave of the Fireflies": "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExdjNsNzdtMXFqMDgyc3cya2Y4djZoazl3ZXhpMGttYWhzMHJ6bjFseiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/AKtV37treIorS/giphy.gif",
-    "My Neighbor Totoro": "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExazVueTYxeGluM3I5a21ybjlxNWphbTVlenI1dGE1N2V6bDUwdWEwOCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xMkWcQ9xTGH8A/giphy.gif",
-    "Kiki's Delivery Service": "https://media0.giphy.com/media/v1.Y2lkPTc5MGI3NjExODd5d2kzbmdyZWpudHhocnVlaTh1bGxkY212YjAwN3M3ejdnbWZ1MyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/HLzvuV6rmpdeM/giphy.gif",
-    "Only Yesterday": null, // Use default pic
-    "Porco Rosso": "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExY3M4MWN1dG1zcHI2OGJqODJuOGM5bnB3dTU5aDJlemx2OGZiNTN4YyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/fwqAg6ZS6ebL2/giphy.gif",
-    "Pom Poko": "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExNnplbmV1Zm9jbXhxeWwwaGo5dDF4ZGM4a2FpbGkwNzJpcGE1Y3Y1NSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/L6TilUE7VN4QM/giphy.gif",
-    "Whisper of the Heart": "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExYTgydTN2Zjk5dzVuZTNqeno0Ym05dGZqMjZwdmFhaDVtNWNpcDdpbSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/6XX4V0O8a0xdS/giphy.gif",
-    "Princess Mononoke": "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExem5kM2hpejE0emN4bXRvdXg3azlvcjA2cXlrNmFwcDJvc3ExYTJ3dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/8A7dN5xUW7AuSm8hEY/giphy.gif",
-    "My Neighbors the Yamadas": null, // Use default pic
-    "Spirited Away": "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExbjhxOWdpM2g2OXM3MjlscWozOWZ5ZXhraDVhZXp5d2VxYjU3ZnJqZyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/MkuD2E3CJM9LG/giphy.gif",
-    "The Cat Returns": "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExNXFtZTR1ZHFnbGkwdGY2c3p5MnN0MHE5dDQybHh0OHE2YWx5NjR4dCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/hS21PWdzgP02Y/giphy.gif",
-    "Howl's Moving Castle": "https://media4.giphy.com/media/v1.Y2lkPTc5MGI3NjExNjlyMDdiOW9reDdhejRwZWVodTViMm9hc3E5cW1qcGpkaGd4MjgzOSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/wUCgLRvDdtWs8/giphy.gif",
-    "Tales from Earthsea": null, // Use default pic
-    "Ponyo": "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExNHpmNWpjbDh4c3E5Z25uMnlwbzA3MG9td3BlMmI2YmdyaDNxODlhcSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/pQOeDr8mVwaHu/giphy.gif",
-    "The Secret World of Arrietty": "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExMmU1d2w0Z2dpdHNxaXE3enAxcmw5aHdsODdkbnhqM2syMm1nMmE4ZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/3sjOADyw19Pa/giphy.gif",
-    "From Up on Poppy Hill": "https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExdW1vcWxqaHg5N2NmOHY5dmR2OXpseW40ZzZycDdvdGc2ZTJ6eDdsZSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/0mmGH15O5ivXnNec26/giphy.gif",
-    "The Wind Rises": "https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3hwOGx5c2puM2t1aDZrd2l6dW4zejZ5OW81YmI5cnlmYXppZ2UzcCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/oHvHEKTgRgk6MeIZv5/giphy.gif",
-    "The Tale of the Princess Kaguya": "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExcHB5bjBwZ3kwaWJ4bDF6bmcwNXZoaDR4bWNsdjE0cXNnd3U1bHluayZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/VKLruF5oChAR2/giphy.gif",
-    "When Marnie Was There": "https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExaW5nemptZXY5a2F0bjMydzE4YnNxYml5cG0yYWVvc3A0cjkwZzVoYyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/ufvRifZxL1Svu/giphy.gif",
-    "The Red Turtle": null, // Use default pic
-    "Earwig and the Witch": null, // Use default pic
+  // Map film titles to local video file paths
+  const videoMap = {
+    "Castle in the Sky": "/videos/Castle in the Sky.webm",
+    "Grave of the Fireflies": "/videos/Grave of Fireflies.webm",
+    "My Neighbor Totoro": "/videos/My Neighbor Totoro.webm",
+    "Kiki's Delivery Service": "/videos/Kiki's Delivery Services.webm",
+    "Only Yesterday": "/videos/Only Yesterday.webm",
+    "Porco Rosso": "/videos/Porco Rosso.webm",
+    "Pom Poko": "/videos/Pompoko.webm",
+    "Whisper of the Heart": "/videos/Whisper of the heart.webm",
+    "Princess Mononoke": "/videos/Princess Mononoke.webm",
+    "My Neighbors the Yamadas": "/videos/My Neighbors The Yamada's.webm",
+    "Spirited Away": "/videos/Spirited Away.webm",
+    "The Cat Returns": "/videos/The cat returns.webm",
+    "Howl's Moving Castle": "/videos/Howl's Moving Castle.webm",
+    "Tales from Earthsea": "/videos/Tales from Earthsea.webm",
+    "Ponyo": "/videos/Ponyo.webm",
+    "The Secret World of Arrietty": "/videos/The secret world of Arriety.webm",
+    "Arrietty": "/videos/The secret world of Arriety.webm",
+    "The Borrower Arrietty": "/videos/The secret world of Arriety.webm",
+    "From Up on Poppy Hill": "/videos/From up on Poppy Hill.webm",
+    "The Wind Rises": "/videos/Wind Rises.webm",
+    "The Tale of the Princess Kaguya": "/videos/The Tale of Princess Kaguya.webm",
+    "When Marnie Was There": "/videos/When marnie was there.webm",
+    "The Red Turtle": "/videos/The red turtle.webm",
+    "Earwig and the Witch": "/videos/Earwig and the Witch.webm",
   };
 
   // Map film titles from the Ghibli API to their index in the playlist:
@@ -464,16 +478,20 @@ export default function Timeline({ userList = {} }) {
 
         setTimeline(items);
         
-        // Set initial background image for first item
+        // Set initial background video/image for first item
         if (items.length > 0) {
           const firstItem = items[0];
-          const firstGif = giphyMap[firstItem.title];
-          const initialImage = firstGif || firstItem.movie_banner || firstItem.image;
-          if (initialImage) {
-            setActiveImage(initialImage);
-            setFallbackImage(firstItem.movie_banner || firstItem.image);
-            setBackgroundOpacity(0.3);
+          const firstVideo = videoMap[firstItem.title];
+          const staticFallback = firstItem.movie_banner || firstItem.image;
+          if (firstVideo) {
+            setActiveVideo(firstVideo);
+            setActiveImage(null);
+          } else if (staticFallback) {
+            setActiveVideo(null);
+            setActiveImage(staticFallback);
           }
+          setFallbackImage(staticFallback);
+          setBackgroundOpacity(0.3);
         }
       } catch (err) {
         if (mounted) setError(err.message || "Failed to fetch films");
@@ -513,7 +531,34 @@ export default function Timeline({ userList = {} }) {
       {/* Sticky, viewport-height background scoped to the timeline section */}
       <div className="pointer-events-none sticky top-0 h-screen z-0">
         <div className="relative w-full h-full">
-          {activeImage && (
+          {activeVideo && (
+            <motion.video
+              key={activeVideo}
+              src={activeVideo}
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="auto"
+              className="absolute inset-0 w-full h-full object-cover"
+              style={{ zIndex: 1 }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: backgroundOpacity }}
+              exit={{ opacity: 0 }}
+              transition={{ 
+                duration: 0.8, 
+                ease: [0.25, 0.1, 0.25, 1] // Smooth ease-in-out curve
+              }}
+              onError={(e) => {
+                // Fallback to static image if video fails to load
+                if (fallbackImage) {
+                  setActiveVideo(null);
+                  setActiveImage(fallbackImage);
+                }
+              }}
+            />
+          )}
+          {activeImage && !activeVideo && (
             <motion.img
               key={activeImage}
               src={activeImage}
@@ -528,7 +573,7 @@ export default function Timeline({ userList = {} }) {
                 ease: [0.25, 0.1, 0.25, 1] // Smooth ease-in-out curve
               }}
               onError={(e) => {
-                // Fallback to static image if GIF fails to load
+                // Fallback to placeholder if image fails to load
                 if (fallbackImage && e.target.src !== fallbackImage) {
                   e.target.src = fallbackImage;
                 }
@@ -586,11 +631,12 @@ export default function Timeline({ userList = {} }) {
               item={item}
               index={index}
               userList={userList}
+              setActiveVideo={setActiveVideo}
               setActiveImage={setActiveImage}
               setFallbackImage={setFallbackImage}
               setBackgroundOpacity={setBackgroundOpacity}
               onWatchTrailer={handleOpenTrailer}
-              giphyMap={giphyMap}
+              videoMap={videoMap}
             />
           ))}
         </div>
